@@ -1,0 +1,38 @@
+[
+  {
+    "ip": "127.0.0.1",
+    "tenantId": "biz-nairobi-01",
+    "timestamp": 1789808485802,
+    "success": true
+  },
+  {
+    "ip": "127.0.0.1",
+    "tenantId": "biz-nairobi-01",
+    "timestamp": 1789808488375,
+    "success": false
+  },
+  {
+    "ip": "127.0.0.1",
+    "tenantId": "biz-nairobi-01",
+    "timestamp": 1789808490679,
+    "success": false
+  },
+  {
+    "ip": "127.0.0.1",
+    "tenantId": "biz-nairobi-01",
+    "timestamp": 1789808494736,
+    "success": false
+  },
+  {
+    "ip": "127.0.0.1",
+    "tenantId": "biz-nairobi-01",
+    "timestamp": 1789808494752,
+    "success": false
+  },
+  {
+    "ip": "127.0.0.1",
+    "tenantId": "biz-nairobi-01",
+    "timestamp": 1789808496875,
+    "success": false
+  }
+]

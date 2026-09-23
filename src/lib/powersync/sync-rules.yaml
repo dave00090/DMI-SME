@@ -1,0 +1,53 @@
+# PowerSync Replication & Sync Rules Configuration
+# Defines how Supabase Postgres tables are partitioned into client buckets by business_id and role
+
+bucket_definitions:
+  # 1. Global Business Data Bucket
+  # Replicated to all authorized staff belonging to this business_id
+  business_data:
+    parameters:
+      - select id as business_id from businesses where id = request.jwt ->> 'business_id'
+    data:
+      # Staff table - Only users in same business
+      - select * from staff where business_id = bucket.business_id
+      # Branches - Outlets within business
+      - select * from branches where business_id = bucket.business_id
+      # Products catalog (metadata & prices)
+      - select * from products where business_id = bucket.business_id
+      # Customers & Debt ledger
+      - select * from customers where business_id = bucket.business_id
+
+  # 2. Branch & Register Stock Deltas Bucket
+  # Syncs additive stock deltas so every device has consistent computed stock
+  stock_deltas:
+    parameters:
+      - select id as business_id from businesses where id = request.jwt ->> 'business_id'
+    data:
+      - select * from inventory_stock_deltas 
+        where business_id = bucket.business_id
+        and created_at > (now() - interval '90 days')
+
+  # 3. Transactions & Sales Bucket
+  # Cashiers get sales from their branch; Owners & Managers get all branches
+  sales_data:
+    parameters:
+      - select id as business_id from businesses where id = request.jwt ->> 'business_id'
+      - select assigned_branch_id, role from staff where auth_user_id = request.user_id()
+    data:
+      - select * from sales 
+        where business_id = bucket.business_id
+        and (
+          bucket.role in ('owner', 'manager') 
+          or branch_id = bucket.assigned_branch_id
+          or cashier_id = request.user_id()
+        )
+      - select * from sale_items 
+        where sale_id in (
+          select id from sales 
+          where business_id = bucket.business_id
+          and (
+            bucket.role in ('owner', 'manager') 
+            or branch_id = bucket.assigned_branch_id
+            or cashier_id = request.user_id()
+          )
+        )

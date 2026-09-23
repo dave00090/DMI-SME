@@ -1,0 +1,6 @@
+{
+  "name": "DMi Business - SME Operating System",
+  "description": "An all-in-one retail operating system and multi-tenant SaaS platform built for Kenyan MSEs: hierarchical subscription controls (Platform Owner vs Business Owner), automated Safaricom M-Pesa billing, grace periods, zero-data-loss access gating, audited support sessions, offline-first POS sync, and multi-branch management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

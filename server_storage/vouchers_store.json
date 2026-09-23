@@ -1,0 +1,26 @@
+[
+  {
+    "id": "d5ad8f53-d6d6-471c-9b43-b0921800c87d",
+    "token_hash": "2ef4cf078bff213b9b6650c7b25025f841f65413ce5086cafb213e969fbe899d",
+    "masked_prefix": "DMI-BIZ-F55C-****-****",
+    "tier": "Business",
+    "duration_days": 30,
+    "price_kes": 7500,
+    "status": "redeemed",
+    "created_at": "2026-09-19T09:01:23.972Z",
+    "created_by": "Dave Migichi (SuperAdmin NOC)",
+    "redeemed_by_tenant": "biz-nairobi-01",
+    "redeemed_at": "2026-09-19T09:01:25.802Z"
+  },
+  {
+    "id": "6bf24c1e-cd19-47b1-8ce5-f57d82214e97",
+    "token_hash": "bb62c98a703edf42624f6c9501446237fda4743fb6a0fe780721f1b6d2c229a9",
+    "masked_prefix": "DMI-BIZ-W4ZS-****-****",
+    "tier": "Business",
+    "duration_days": 30,
+    "price_kes": 7500,
+    "status": "revoked",
+    "created_at": "2026-09-19T08:59:13.616Z",
+    "created_by": "Dave Migichi (SuperAdmin NOC)"
+  }
+]
