@@ -202,7 +202,7 @@ export const EmployeeSecurityManager: React.FC = () => {
                   <div key={b.id} className="p-3 rounded-lg border border-slate-200 bg-slate-50/60">
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                        <Building2 className="w-3.5 h-3.5 text-blue-600" /> {b.name}
+                        <Building2 className="w-3.5 h-3.5 text-blue-600" /> {b?.name || 'Branch'}
                       </span>
                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
                         {branchStaff.length} Staff
@@ -215,7 +215,7 @@ export const EmployeeSecurityManager: React.FC = () => {
                           key={s.id}
                           className="px-2 py-0.5 rounded text-[10px] font-medium bg-white border border-slate-200 text-slate-700"
                         >
-                          {s.name} ({s.role})
+                          {s?.name || 'Staff'} ({s.role})
                         </span>
                       ))}
                     </div>
@@ -243,14 +243,14 @@ export const EmployeeSecurityManager: React.FC = () => {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div className="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-800 text-sm">
-                          {emp.name
+                          {(emp?.name || 'Staff')
                             .split(' ')
                             .map((n) => n[0])
                             .join('')
                             .slice(0, 2)}
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-slate-900 leading-tight">{emp.name}</h4>
+                          <h4 className="text-sm font-bold text-slate-900 leading-tight">{emp?.name || 'Staff Member'}</h4>
                           <span
                             className={`inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                               emp.role === 'owner'
@@ -525,9 +525,9 @@ export const EmployeeSecurityManager: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
             <div className="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-base">Permissions for {editingEmployee.name}</h3>
+                <h3 className="font-bold text-base">Permissions for {editingEmployee?.name || 'Staff User'}</h3>
                 <p className="text-xs text-slate-400">
-                  Role: {editingEmployee.role.toUpperCase()} • Branch: {editingEmployee.branchName}
+                  Role: {(editingEmployee?.role || 'staff').toUpperCase()} • Branch: {editingEmployee?.branchName || 'Main Branch'}
                 </p>
               </div>
               <button

@@ -69,8 +69,8 @@ export const AuditedSupportBanner: React.FC = () => {
             </span>
             <span className="text-sm font-bold text-white flex items-center gap-1.5">
               <Building2 className="w-4 h-4 text-amber-400" />
-              <span>{businessIdentity.name}</span>
-              <span className="text-xs font-mono text-slate-400">({businessIdentity.businessId})</span>
+              <span>{businessIdentity?.name || 'DMi Business Store'}</span>
+              <span className="text-xs font-mono text-slate-400">({businessIdentity?.businessId || 'BIZ-MAIN'})</span>
             </span>
             <span className="text-[11px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-700/50 px-2 py-0.5 rounded flex items-center gap-1">
               <Eye className="w-3 h-3" />
@@ -111,16 +111,19 @@ export const AuditedSupportBanner: React.FC = () => {
         {/* Tenant Quick Switcher if Super Admin wants to inspect other businesses */}
         <div className="relative inline-flex items-center">
           <select
-            value={businessIdentity.businessId}
+            value={businessIdentity?.businessId || ''}
             onChange={(e) => switchBusinessTenant(e.target.value)}
             className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-xs font-semibold rounded-lg px-2.5 py-1.5 appearance-none pr-6 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-400 transition"
             title="Switch inspected business tenant"
           >
-            {registeredTenantKeys.map((bId) => (
-              <option key={bId} value={bId}>
-                🏢 {tenantRegistry[bId].businessIdentity.name} ({bId})
-              </option>
-            ))}
+            {registeredTenantKeys.map((bId) => {
+              const bName = tenantRegistry[bId]?.businessIdentity?.name || tenantRegistry[bId]?.storeProfile?.name || bId;
+              return (
+                <option key={bId} value={bId}>
+                  🏢 {bName} ({bId})
+                </option>
+              );
+            })}
           </select>
           <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2 pointer-events-none" />
         </div>

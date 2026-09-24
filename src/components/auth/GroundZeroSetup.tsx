@@ -207,8 +207,8 @@ export const GroundZeroSetup: React.FC<GroundZeroSetupProps> = ({
                 className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs font-medium text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               >
                 {INDUSTRY_TYPES.map((ind) => (
-                  <option key={ind.id} value={ind.name}>
-                    {ind.name} ({ind.shortLabel})
+                  <option key={ind.id} value={ind?.name || ''}>
+                    {ind?.name || 'General Retail'} ({ind?.shortLabel || ''})
                   </option>
                 ))}
               </select>

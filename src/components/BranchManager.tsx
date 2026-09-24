@@ -284,7 +284,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ initialSubTab = 'b
                       : 'bg-white text-slate-700 hover:bg-slate-200 border border-slate-200'
                   }`}
                 >
-                  {b.code} - {b.name.split(' ')[0]}
+                  {b.code} - {b?.name ? b.name.split(' ')[0] : (b?.code || 'Branch')}
                 </button>
               ))}
             </div>
@@ -318,7 +318,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ initialSubTab = 'b
                           {branch.isWarehouse ? <Warehouse className="w-5 h-5" /> : <Store className="w-5 h-5" />}
                         </div>
                         <div>
-                          <h3 className="font-bold text-slate-900 text-base">{branch.name}</h3>
+                          <h3 className="font-bold text-slate-900 text-base">{branch?.name || 'Branch'}</h3>
                           <span className="text-[11px] font-mono text-slate-500 uppercase tracking-wide">
                             Code: {branch.code}
                           </span>
@@ -561,7 +561,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ initialSubTab = 'b
                     <th className="py-3 px-4 text-center font-bold">Total Network Stock</th>
                     {branches.map((b) => (
                       <th key={b.id} className="py-3 px-4 text-center">
-                        <span className="font-semibold text-slate-800 block">{b.name.split(' ')[0]}</span>
+                        <span className="font-semibold text-slate-800 block">{b?.name ? b.name.split(' ')[0] : (b?.code || 'Branch')}</span>
                         <span className="text-[10px] font-mono text-slate-400 uppercase">({b.code})</span>
                       </th>
                     ))}
@@ -774,7 +774,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ initialSubTab = 'b
                   >
                     {branches.map((b) => (
                       <option key={b.id} value={b.id}>
-                        {b.name} ({b.code})
+                        {b?.name || 'Branch'} ({b?.code || ''})
                       </option>
                     ))}
                   </select>
@@ -789,7 +789,7 @@ export const BranchManager: React.FC<BranchManagerProps> = ({ initialSubTab = 'b
                   >
                     {branches.map((b) => (
                       <option key={b.id} value={b.id} disabled={b.id === newTransfer.sourceBranchId}>
-                        {b.name} ({b.code})
+                        {b?.name || 'Branch'} ({b?.code || ''})
                       </option>
                     ))}
                   </select>

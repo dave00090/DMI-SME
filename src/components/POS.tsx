@@ -121,7 +121,7 @@ export const POS: React.FC = () => {
       playBarcodeBeep();
       setBarcodeNotice({
         type: 'success',
-        text: `Scanned: "${product.name}" (${product.sku}) - Added to cart`,
+        text: `Scanned: "${product?.name || 'Item'}" (${product?.sku || ''}) - Added to cart`,
       });
       setBarcodeInput('');
     } else {
@@ -151,7 +151,7 @@ export const POS: React.FC = () => {
     playBarcodeBeep();
     setBarcodeNotice({
       type: 'success',
-      text: `Added: "${product.name}" (KSh ${product.sellingPrice.toLocaleString()}) to cart`,
+      text: `Added: "${product?.name || 'Item'}" (KSh ${(product?.sellingPrice || 0).toLocaleString()}) to cart`,
     });
     setSearchQuery('');
     setIsSearchDropdownOpen(false);
@@ -196,7 +196,7 @@ export const POS: React.FC = () => {
     playBarcodeBeep();
     setBarcodeNotice({
       type: 'success',
-      text: `Quick Added: ${quantity}x "${product.name}" to cart`,
+      text: `Quick Added: ${quantity}x "${product?.name || 'Item'}" to cart`,
     });
     setTimeout(() => setBarcodeNotice(null), 3000);
   };
@@ -373,7 +373,7 @@ export const POS: React.FC = () => {
           paymentMethod === 'credit' || (isSplit && (splitDetails.credit || 0) > 0)
             ? selectedCustomerId
             : undefined,
-        customerName: selectedCustomer ? selectedCustomer.name : 'Walk-in Customer',
+        customerName: selectedCustomer?.name || 'Walk-in Customer',
         creditDueDate: paymentMethod === 'credit' ? creditDueDate : undefined,
         notes: paymentMethod === 'credit' ? creditNotes : undefined,
         paymentStatus: 'paid',
@@ -575,7 +575,7 @@ export const POS: React.FC = () => {
         paymentMethod === 'credit' || (isSplit && splitDetails.credit > 0)
           ? selectedCustomerId
           : undefined,
-      customerName: selectedCustomer ? selectedCustomer.name : 'Walk-in Customer',
+      customerName: selectedCustomer?.name || 'Walk-in Customer',
       creditDueDate: paymentMethod === 'credit' ? creditDueDate : undefined,
       notes: paymentMethod === 'credit' ? creditNotes : undefined,
       approvedBy,
@@ -589,7 +589,7 @@ export const POS: React.FC = () => {
     // Enqueue sale and additive stock deltas into PowerSync SQLite offline queue
     try {
       offlineWriteQueue.enqueue({
-        businessId: activeBranch ? activeBranch.name : 'BUS-8F42K91',
+        businessId: activeBranch?.name || 'BUS-8F42K91',
         tableName: 'sales',
         operation: 'INSERT',
         payload: {
@@ -597,7 +597,7 @@ export const POS: React.FC = () => {
           receipt_number: sale.receiptNumber,
           grand_total: sale.grandTotal,
           payment_method: sale.paymentMethod,
-          cashier_id: currentEmployee.id,
+          cashier_id: currentEmployee?.id || 'emp-01',
           status: 'completed',
           created_at: sale.timestamp,
         },
@@ -605,7 +605,7 @@ export const POS: React.FC = () => {
 
       sale.items.forEach((item) => {
         offlineWriteQueue.enqueue({
-          businessId: activeBranch ? activeBranch.name : 'BUS-8F42K91',
+          businessId: activeBranch?.name || 'BUS-8F42K91',
           tableName: 'inventory_stock_deltas',
           operation: 'INSERT',
           payload: {
@@ -941,11 +941,11 @@ export const POS: React.FC = () => {
             <span className="text-slate-400">|</span>
             <span className="font-semibold text-slate-700">Register Outlet:</span>
             <span className="px-2.5 py-0.5 rounded-full font-bold bg-blue-100 text-blue-800">
-              {activeBranch ? activeBranch.name : 'All Locations (Kangemi Main)'}
+              {activeBranch?.name || 'All Locations (Kangemi Main)'}
             </span>
             <span className="text-slate-400">|</span>
             <span className="text-[11px] text-slate-500 font-mono">
-              Till: <strong>{activeBranch ? activeBranch.tillNumber : storeProfile.tillNumber}</strong>
+              Till: <strong>{activeBranch?.tillNumber || storeProfile?.tillNumber || '000000'}</strong>
             </span>
           </div>
 
@@ -1054,7 +1054,7 @@ export const POS: React.FC = () => {
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition">
-                            {product.name}
+                            {product?.name || 'Item'}
                           </span>
                           <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-100 group-hover:bg-blue-100 text-slate-600 group-hover:text-blue-800 rounded border border-slate-200">
                             {product.sku}
@@ -1268,14 +1268,14 @@ export const POS: React.FC = () => {
                       <div className="pr-2 space-y-0.5">
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-xs sm:text-sm text-slate-900">
-                            {item.product.name}
+                            {item?.product?.name || 'Item'}
                           </span>
                           <span className="text-[10px] font-mono px-1.5 py-0.2 bg-white text-slate-600 rounded border border-slate-200">
-                            {item.product.sku}
+                            {item?.product?.sku || ''}
                           </span>
                         </div>
                         <div className="text-[11px] text-slate-500">
-                          {item.product.category} • KSh {item.product.sellingPrice.toLocaleString()} / {item.product.unit} (In stock: {item.product.stockQuantity} {item.product.unit})
+                          {item?.product?.category || 'Retail'} • KSh {(item?.product?.sellingPrice || 0).toLocaleString()} / {item?.product?.unit || 'unit'} (In stock: {item?.product?.stockQuantity || 0} {item?.product?.unit || 'unit'})
                         </div>
                       </div>
                       <div className="text-right shrink-0">
@@ -2408,7 +2408,7 @@ export const POS: React.FC = () => {
           isOpen={showDiscountApprovalModal}
           onClose={() => setShowDiscountApprovalModal(false)}
           title="Manager Approval: Discount Override"
-          description={`Cashier ${currentEmployee.name} is applying a discount of KSh ${cartTotals.totalDiscount.toLocaleString()} (${Math.round(
+          description={`Cashier ${currentEmployee?.name || 'Staff'} is applying a discount of KSh ${cartTotals.totalDiscount.toLocaleString()} (${Math.round(
             (cartTotals.totalDiscount / (cartTotals.subtotal || 1)) * 100
           )}%), which exceeds the default shop limit of ${securityLimits.maxDiscountWithoutApprovalPercent}%.`}
           thresholdNotice="Supervisor PIN authorization is required to prevent unauthorized price markdowns."
@@ -2623,7 +2623,7 @@ export const POS: React.FC = () => {
                           <div className="space-y-0.5 flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition">
-                                {product.name}
+                                {product?.name || 'Item'}
                               </span>
                               <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded border border-slate-200">
                                 {product.sku}
@@ -2703,20 +2703,20 @@ export const POS: React.FC = () => {
           {/* Header */}
           <div className="text-center pb-2 border-b border-dashed border-black">
             <div className="font-extrabold text-sm tracking-wider uppercase">
-              {activeBranch ? activeBranch.name : storeProfile.name || 'DMi Hardware Store'}
+              {activeBranch?.name || storeProfile?.name || 'DMi Hardware Store'}
             </div>
             <div className="text-[10px]">
-              {storeProfile.location || 'Nairobi, Kenya'}
+              {storeProfile?.location || 'Nairobi, Kenya'}
             </div>
             <div className="text-[10px]">
-              Tel: {storeProfile.phone || '0712 345 678'} • Till: {activeBranch ? activeBranch.tillNumber : storeProfile.tillNumber || '584210'}
+              Tel: {storeProfile?.phone || '0712 345 678'} • Till: {activeBranch ? activeBranch.tillNumber : storeProfile?.tillNumber || '584210'}
             </div>
-            {storeProfile.paybillNumber && (
+            {storeProfile?.paybillNumber && (
               <div className="text-[10px]">
                 Paybill: {storeProfile.paybillNumber}
               </div>
             )}
-            {storeProfile.taxPin && (
+            {storeProfile?.taxPin && (
               <div className="text-[10px]">
                 KRA PIN: {storeProfile.taxPin}
               </div>
@@ -2754,12 +2754,12 @@ export const POS: React.FC = () => {
             </div>
             <div className="flex justify-between">
               <span>Cashier:</span>
-              <span>{currentEmployee.name || storeProfile.cashierName || 'Attendant'}</span>
+              <span>{currentEmployee?.name || storeProfile?.cashierName || 'Attendant'}</span>
             </div>
             {activeBranch && (
               <div className="flex justify-between">
                 <span>Branch:</span>
-                <span>{activeBranch.name}</span>
+                <span>{activeBranch?.name || 'Main Branch'}</span>
               </div>
             )}
           </div>
@@ -2773,14 +2773,14 @@ export const POS: React.FC = () => {
             {cart.map((item, idx) => (
               <div key={idx} className="flex justify-between items-start text-[10px]">
                 <div className="pr-2">
-                  <span className="font-semibold">{item.product.name}</span>
+                  <span className="font-semibold">{item?.product?.name || 'Item'}</span>
                   <div className="text-[9px]">
-                    {item.quantity} x KSh {item.product.sellingPrice.toLocaleString()}
-                    {item.discount > 0 && ` (-KSh ${item.discount.toLocaleString()} disc)`}
+                    {item?.quantity || 1} x KSh {(item?.product?.sellingPrice || 0).toLocaleString()}
+                    {(item?.discount || 0) > 0 && ` (-KSh ${(item?.discount || 0).toLocaleString()} disc)`}
                   </div>
                 </div>
                 <span className="font-bold whitespace-nowrap">
-                  KSh {item.total.toLocaleString()}
+                  KSh {(item?.total || 0).toLocaleString()}
                 </span>
               </div>
             ))}

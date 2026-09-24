@@ -1,0 +1,36 @@
+
+services:
+  dmi-pos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dmi_business_pos
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Provide your Supabase & Safaricom Daraja credentials below:
+      - VITE_SUPABASE_URL=https://mqmxafycuadnqxgwlwad.supabase.co/rest/v1/
+      - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbXhhZnljdWFkbnF4Z3dsd2FkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwODIxMzMsImV4cCI6MjEwNDY1ODEzM30.vRKmjYvHxcE2vd_vcKRXAN0KB6ePt2tK4PaLpEUCb1o
+      - SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbXhhZnljdWFkbnF4Z3dsd2FkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTA4MjEzMywiZXhwIjoyMTA0NjU4MTMzfQ.sKRuqmRP82TmByr2_y3_Fg0itP5kLqIFlejgMuw8suU
+      - DARAJA_CONSUMER_KEY=${DARAJA_CONSUMER_KEY:-}
+      - DARAJA_CONSUMER_SECRET=${DARAJA_CONSUMER_SECRET:-}
+      - DARAJA_PASSKEY=${DARAJA_PASSKEY:-}
+      - DARAJA_SHORTCODE=${DARAJA_SHORTCODE:-174379}
+      - DARAJA_ENVIRONMENT=${DARAJA_ENVIRONMENT:-sandbox}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    volumes:
+      # Persist local database snapshots, backups, and vouchers
+      - dmi_storage:/app/server_storage
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/saas/overview"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  dmi_storage:
+    driver: local

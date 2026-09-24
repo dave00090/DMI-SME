@@ -40,24 +40,24 @@ export const ReceiptModal: React.FC<Props> = ({ sale: initialSale, onClose, auto
   const [printSuccess, setPrintSuccess] = useState(false);
   const [autoPrintTriggered, setAutoPrintTriggered] = useState(false);
   const [paperFormat, setPaperFormat] = useState<'thermal80' | 'a4'>(
-    storeProfile.receiptPaperFormat || 'thermal80'
+    storeProfile?.receiptPaperFormat || 'thermal80'
   );
   
   // Editable fields draft state
   const [editStoreName, setEditStoreName] = useState(
-    currentSale.storeName || storeProfile.name || ''
+    currentSale.storeName || storeProfile?.name || ''
   );
   const [editStoreLocation, setEditStoreLocation] = useState(
-    currentSale.storeLocation || storeProfile.location || ''
+    currentSale.storeLocation || storeProfile?.location || ''
   );
   const [editStorePhone, setEditStorePhone] = useState(
-    currentSale.storePhone || storeProfile.phone || ''
+    currentSale.storePhone || storeProfile?.phone || ''
   );
   const [editStoreTill, setEditStoreTill] = useState(
-    currentSale.storeTill || storeProfile.tillNumber || ''
+    currentSale.storeTill || storeProfile?.tillNumber || ''
   );
   const [editStorePaybill, setEditStorePaybill] = useState(
-    currentSale.storePaybill || storeProfile.paybillNumber || ''
+    currentSale.storePaybill || storeProfile?.paybillNumber || ''
   );
   const [editTaxPin, setEditTaxPin] = useState(
     currentSale.taxPin || storeProfile.taxPin || ''
@@ -104,11 +104,11 @@ export const ReceiptModal: React.FC<Props> = ({ sale: initialSale, onClose, auto
 
   // Plain-text formatted receipt for WhatsApp & clipboard
   const receiptText = useMemo(() => {
-    const sName = currentSale.storeName || storeProfile.name;
-    const sLoc = currentSale.storeLocation || storeProfile.location;
-    const sPhone = currentSale.storePhone || storeProfile.phone;
-    const sTill = currentSale.storeTill || storeProfile.tillNumber;
-    const sPaybill = currentSale.storePaybill || storeProfile.paybillNumber;
+    const sName = currentSale.storeName || storeProfile?.name || 'DMi Business Store';
+    const sLoc = currentSale.storeLocation || storeProfile?.location || '';
+    const sPhone = currentSale.storePhone || storeProfile?.phone || '';
+    const sTill = currentSale.storeTill || storeProfile?.tillNumber || '';
+    const sPaybill = currentSale.storePaybill || storeProfile?.paybillNumber || '';
     const rTitle = currentSale.receiptTitle || 'OFFICIAL RECEIPT';
 
     return `*${sName.toUpperCase()}*
@@ -182,14 +182,14 @@ Powered by DMi Business OS`;
       });
 
       const printData: PrintReceiptData = {
-        storeName: currentSale.storeName || storeProfile.name,
-        storeLocation: currentSale.storeLocation || storeProfile.location,
-        storePhone: currentSale.storePhone || storeProfile.phone,
-        storeTill: currentSale.storeTill || storeProfile.tillNumber,
-        storePaybill: currentSale.storePaybill || storeProfile.paybillNumber,
-        storeAccount: currentSale.storeAccount || storeProfile.accountNumber,
-        taxPin: currentSale.taxPin || storeProfile.taxPin,
-        cashierName: currentSale.cashierName || storeProfile.cashierName,
+        storeName: currentSale.storeName || storeProfile?.name || 'DMi Business Store',
+        storeLocation: currentSale.storeLocation || storeProfile?.location || '',
+        storePhone: currentSale.storePhone || storeProfile?.phone || '',
+        storeTill: currentSale.storeTill || storeProfile?.tillNumber || '',
+        storePaybill: currentSale.storePaybill || storeProfile?.paybillNumber || '',
+        storeAccount: currentSale.storeAccount || storeProfile?.accountNumber || '',
+        taxPin: currentSale.taxPin || storeProfile?.taxPin || '',
+        cashierName: currentSale.cashierName || storeProfile?.cashierName || 'Cashier',
         receiptTitle: currentSale.receiptTitle || 'OFFICIAL CASH SALE RECEIPT',
         receiptNumber: currentSale.receiptNumber,
         dateStr: dateFormatted,
@@ -204,8 +204,8 @@ Powered by DMi Business OS`;
         mpesaCode: currentSale.mpesaCode,
         creditDueDate: currentSale.creditDueDate,
         notes: currentSale.notes,
-        receiptFooterMessage: currentSale.receiptFooterMessage || storeProfile.receiptFooterMessage,
-        receiptReturnPolicy: currentSale.receiptReturnPolicy || storeProfile.receiptReturnPolicy,
+        receiptFooterMessage: currentSale.receiptFooterMessage || storeProfile?.receiptFooterMessage || '',
+        receiptReturnPolicy: currentSale.receiptReturnPolicy || storeProfile?.receiptReturnPolicy || '',
         format: paperFormat,
       };
 
@@ -228,14 +228,14 @@ Powered by DMi Business OS`;
   const handleDownload = () => {
     const dateFormatted = new Date(currentSale.timestamp).toLocaleString();
     const printData: PrintReceiptData = {
-      storeName: currentSale.storeName || storeProfile.name,
-      storeLocation: currentSale.storeLocation || storeProfile.location,
-      storePhone: currentSale.storePhone || storeProfile.phone,
-      storeTill: currentSale.storeTill || storeProfile.tillNumber,
-      storePaybill: currentSale.storePaybill || storeProfile.paybillNumber,
-      storeAccount: currentSale.storeAccount || storeProfile.accountNumber,
-      taxPin: currentSale.taxPin || storeProfile.taxPin,
-      cashierName: currentSale.cashierName || storeProfile.cashierName,
+      storeName: currentSale.storeName || storeProfile?.name || 'DMi Business Store',
+      storeLocation: currentSale.storeLocation || storeProfile?.location || '',
+      storePhone: currentSale.storePhone || storeProfile?.phone || '',
+      storeTill: currentSale.storeTill || storeProfile?.tillNumber || '',
+      storePaybill: currentSale.storePaybill || storeProfile?.paybillNumber || '',
+      storeAccount: currentSale.storeAccount || storeProfile?.accountNumber || '',
+      taxPin: currentSale.taxPin || storeProfile?.taxPin || '',
+      cashierName: currentSale.cashierName || storeProfile?.cashierName || 'Cashier',
       receiptTitle: currentSale.receiptTitle || 'OFFICIAL CASH SALE RECEIPT',
       receiptNumber: currentSale.receiptNumber,
       dateStr: dateFormatted,
@@ -811,17 +811,17 @@ Powered by DMi Business OS`;
                 {/* Store Header */}
                 <div className="text-center pb-3 border-b border-dashed border-slate-300">
                   <div className="font-extrabold text-sm tracking-wider uppercase">
-                    {currentSale.storeName || storeProfile.name}
+                    {currentSale.storeName || storeProfile?.name || 'DMi Business Store'}
                   </div>
                   <div className="text-[11px] text-slate-600">
-                    {currentSale.storeLocation || storeProfile.location}
+                    {currentSale.storeLocation || storeProfile?.location || ''}
                   </div>
                   <div className="text-[11px] text-slate-600">
-                    Tel: {currentSale.storePhone || storeProfile.phone}
+                    Tel: {currentSale.storePhone || storeProfile?.phone || ''}
                   </div>
                   <div className="mt-1.5 flex flex-wrap justify-center gap-1.5 text-[10px] font-bold text-slate-700">
                     <span className="bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
-                      Till: {currentSale.storeTill || storeProfile.tillNumber}
+                      Till: {currentSale.storeTill || storeProfile?.tillNumber || ''}
                     </span>
                     <span className="bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
                       Paybill: {currentSale.storePaybill || storeProfile.paybillNumber}

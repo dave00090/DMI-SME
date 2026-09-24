@@ -48,7 +48,7 @@ export const AiAssistant: React.FC = () => {
     {
       id: 'init-1',
       sender: 'assistant',
-      text: `Habari! I am your AI Business Advisor for **${storeProfile.name}**.
+      text: `Habari! I am your AI Business Advisor for **${storeProfile?.name || 'DMi Business Store'}**.
 
 Unlike a basic POS that merely records receipts, I actively cross-examine your sales history, supplier purchase costs, inventory velocity, and debtor ledger to give you actionable business intelligence.
 
@@ -147,7 +147,7 @@ Click any question below or type your own question to see my analysis:`,
           question: textToSend,
           query: textToSend,
           context: {
-            storeName: storeProfile.name,
+            storeName: storeProfile?.name || 'DMi Business Store',
             currency: 'KSh',
             todaySales: metricsToday.sales,
             todayGrossProfit: metricsToday.grossProfit,
@@ -155,7 +155,7 @@ Click any question below or type your own question to see my analysis:`,
             todayNetProfit: metricsToday.netProfit,
             totalCustomerDebt,
             highDebtorsList: highDebtors.map((d) => ({
-              name: d.name,
+              name: d?.name || 'Customer',
               debt: d.outstandingDebt,
               dueDate: d.creditDueDate,
               status: d.status,
@@ -275,7 +275,7 @@ By analyzing your past 4-week sales records against your real-time on-hand shelf
             <span>AI Business Assistant</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Real-time business intelligence for {storeProfile.name}. Ask about sales trends, debtor recovery, profit diagnostic, and restock velocity.
+            Real-time business intelligence for {storeProfile?.name || 'DMi Business Store'}. Ask about sales trends, debtor recovery, profit diagnostic, and restock velocity.
           </p>
         </div>
 
@@ -358,7 +358,7 @@ By analyzing your past 4-week sales records against your real-time on-hand shelf
                 {
                   id: Date.now().toString(),
                   sender: 'assistant',
-                  text: `Console reset. Ask me anything about ${storeProfile.name}, such as:\n• "What were my best selling products last month?"\n• "Which customers owe me more than KSh 10,000?"\n• "Why did my profit fall this month?"\n• "What should I restock?"`,
+                  text: `Console reset. Ask me anything about ${storeProfile?.name || 'your store'}, such as:\n• "What were my best selling products last month?"\n• "Which customers owe me more than KSh 10,000?"\n• "Why did my profit fall this month?"\n• "What should I restock?"`,
                   timestamp: 'Just now',
                 },
               ])

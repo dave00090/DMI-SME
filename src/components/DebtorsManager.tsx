@@ -57,9 +57,9 @@ export const DebtorsManager: React.FC = () => {
   const filteredCustomers = useMemo(() => {
     return customers.filter((c) => {
       const matchSearch =
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (c.location && c.location.toLowerCase().includes(searchQuery.toLowerCase()));
+        (c?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (c?.phone || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (c?.location && c.location.toLowerCase().includes(searchQuery.toLowerCase()));
 
       if (filterStatus === 'debtors') {
         return matchSearch && c.outstandingDebt > 0;
@@ -354,8 +354,8 @@ export const DebtorsManager: React.FC = () => {
               <div>
                 <h3 className="font-bold text-base text-slate-900">Lipa Deni (Receive Payment)</h3>
                 <p className="text-xs text-slate-500">
-                  {selectedCustForPayment.name} • Total Debt: KSh{' '}
-                  {selectedCustForPayment.outstandingDebt.toLocaleString()}
+                  {selectedCustForPayment?.name || 'Customer'} • Total Debt: KSh{' '}
+                  {(selectedCustForPayment?.outstandingDebt || 0).toLocaleString()}
                 </p>
               </div>
               <button
@@ -496,7 +496,7 @@ export const DebtorsManager: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-bold text-base text-slate-900">Customer Statement</h3>
-                <p className="text-xs text-slate-500">{selectedCustForStatement.name}</p>
+                <p className="text-xs text-slate-500">{selectedCustForStatement?.name || 'Customer'}</p>
               </div>
               <button
                 onClick={() => setIsStatementModalOpen(false)}

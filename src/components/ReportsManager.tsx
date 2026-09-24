@@ -311,7 +311,7 @@ export const ReportsManager: React.FC = () => {
 
   // WhatsApp summary generator
   const getDailyWhatsAppText = () => {
-    return `*${storeProfile.name} - Daily Close Report (${selectedDailyDate})*
+    return `*${storeProfile?.name || 'DMi Business Store'} - Daily Close Report (${selectedDailyDate})*
 ---------------------------------
 • Gross Sales: KSh ${dailyData.revenue.toLocaleString()}
 • Cost of Sales (COGS): KSh ${dailyData.cogs.toLocaleString()}
@@ -996,7 +996,7 @@ _Generated via DMi Business OS_`;
           <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm space-y-6 text-slate-800">
             <div className="text-center border-b border-slate-100 pb-4">
               <h3 className="font-extrabold text-lg text-slate-900 uppercase tracking-wider">
-                {storeProfile.name}
+                {storeProfile?.name || 'DMi Business Store'}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
                 Official Profit & Loss Statement • {monthlyData.monthLabel}
@@ -1235,9 +1235,9 @@ _Generated via DMi Business OS_`;
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
             <h4 className="font-bold text-slate-900 text-xs">Appraisal Summary for Loan Officer:</h4>
             <p className="text-slate-600 leading-relaxed text-xs">
-              "{storeProfile.name} operates with a consistent gross margin of {monthlyData.grossMargin}%.
-              Sales are primarily settled in cash and M-Pesa ({storeProfile.tillNumber}).
-              The shop holds KSh {totalStockCostValue.toLocaleString()} in physical stock and has an active customer book of {debtorsList.length} verified trade accounts."
+              &ldquo;{storeProfile?.name || 'This business'} operates with a consistent gross margin of {monthlyData.grossMargin}%.
+              Sales are primarily settled in cash and M-Pesa ({storeProfile?.tillNumber || 'Till'}).
+              The shop holds KSh {totalStockCostValue.toLocaleString()} in physical stock and has an active customer book of {debtorsList.length} verified trade accounts.&rdquo;
             </p>
           </div>
         </div>

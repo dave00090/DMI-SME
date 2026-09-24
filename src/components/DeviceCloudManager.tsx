@@ -339,7 +339,7 @@ export const DeviceCloudManager: React.FC = () => {
             <div>
               <p className="font-bold text-sm">TERMINAL ACCESS REVOKED REMOTELY</p>
               <p className="text-xs text-rose-100">
-                This physical device ({currentDevice.name}) has been blacklisted by the business owner. Local business database is locked.
+                This physical device ({currentDevice?.name || 'Terminal'}) has been blacklisted by the business owner. Local business database is locked.
               </p>
             </div>
           </div>
@@ -380,13 +380,13 @@ export const DeviceCloudManager: React.FC = () => {
               </span>
               <div className="flex items-center gap-2">
                 <span className="font-mono text-base font-bold text-amber-300">
-                  {businessIdentity.businessId}
+                  {businessIdentity?.businessId || 'BIZ-MAIN'}
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-400/30">
-                  {subscription.tier.toUpperCase()} TIER
+                  {(subscription?.tier || 'Business').toUpperCase()} TIER
                 </span>
               </div>
-              <p className="text-xs text-slate-300">{businessIdentity.name}</p>
+              <p className="text-xs text-slate-300">{businessIdentity?.name || 'DMi Business Store'}</p>
             </div>
 
             <div className="h-10 w-px bg-white/20 hidden sm:block" />
@@ -419,18 +419,18 @@ export const DeviceCloudManager: React.FC = () => {
                   key={dev.id}
                   onClick={() => switchDeviceView(dev.id)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition cursor-pointer ${
-                    currentDevice.id === dev.id
+                    currentDevice?.id === dev.id
                       ? 'bg-blue-600 text-white font-bold shadow-sm'
                       : dev.status === 'revoked'
                       ? 'bg-rose-950/60 text-rose-400 line-through border border-rose-800/40'
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
-                  title={`Switch active hardware context to ${dev.name} (${dev.terminalNumber})`}
+                  title={`Switch active hardware context to ${dev?.name || 'Terminal'} (${dev?.terminalNumber || ''})`}
                 >
                   {getDeviceIcon(dev.type)}
-                  <span>{dev.name}</span>
+                  <span>{dev?.name || 'Terminal'}</span>
                   {dev.status === 'revoked' && <span className="text-[10px] text-rose-400 font-bold">(REVOKED)</span>}
-                  {currentDevice.id === dev.id && (
+                  {currentDevice?.id === dev.id && (
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                   )}
                 </button>
@@ -932,7 +932,7 @@ export const DeviceCloudManager: React.FC = () => {
                         {getDeviceIcon(device.type)}
                       </div>
                       <div>
-                        <h4 className="font-bold text-slate-800 text-sm">{device.name}</h4>
+                        <h4 className="font-bold text-slate-800 text-sm">{device?.name || 'Terminal'}</h4>
                         <span className="text-[11px] font-mono text-slate-500">{device.terminalNumber}</span>
                       </div>
                     </div>
@@ -989,7 +989,7 @@ export const DeviceCloudManager: React.FC = () => {
                         <button
                           onClick={() => {
                             setReplacingDeviceId(device.id);
-                            setReplacementName(`${device.name} Replacement`);
+                            setReplacementName(`${device?.name || 'Terminal'} Replacement`);
                           }}
                           className="px-2.5 py-1.5 text-slate-600 hover:text-slate-900 text-xs font-semibold border border-slate-200 rounded-lg hover:bg-slate-50 transition cursor-pointer"
                           title="Retire damaged hardware and bring up replacement laptop with zero data loss"
@@ -1494,10 +1494,10 @@ export const DeviceCloudManager: React.FC = () => {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <h4 className="font-bold text-sm text-slate-800">
-                    Reconstructed Event Ledger for: {inspectingProduct.name}
+                    Reconstructed Event Ledger for: {inspectingProduct?.name || 'All Inventory Items'}
                   </h4>
                   <span className="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded">
-                    Current Stock: {inspectingProduct.stockQuantity}
+                    Current Stock: {inspectingProduct?.stockQuantity ?? 0}
                   </span>
                 </div>
 
@@ -1507,7 +1507,7 @@ export const DeviceCloudManager: React.FC = () => {
                   className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs"
                 >
                   {products.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
+                    <option key={p.id} value={p.id}>{p?.name || 'Product'}</option>
                   ))}
                 </select>
               </div>
@@ -1597,7 +1597,7 @@ export const DeviceCloudManager: React.FC = () => {
                           {vaultItem.entityType}
                         </td>
                         <td className="py-3 px-4 font-semibold text-slate-800">
-                          {vaultItem.name}
+                          {vaultItem?.name || 'Item'}
                         </td>
                         <td className="py-3 px-4 text-slate-600">{vaultItem.deletedByName}</td>
                         <td className="py-3 px-4 text-slate-600 italic">"{vaultItem.reason}"</td>

@@ -308,10 +308,10 @@ export const LoginDashboard: React.FC = () => {
 
   // Quick Demo fill
   const handleFillDemo = (emp: Employee) => {
-    setIdentifier(emp.username || emp.email || emp.name);
-    setPassword(emp.password || emp.pin);
+    setIdentifier(emp?.username || emp?.email || emp?.name || '');
+    setPassword(emp?.password || emp?.pin || '');
     setSelectedStaff(emp);
-    setPin(emp.pin);
+    setPin(emp?.pin || '');
     setError(null);
   };
 
@@ -329,14 +329,14 @@ export const LoginDashboard: React.FC = () => {
           </div>
           <div>
             <h1 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-              <span>{storeProfile.name || 'DMi Enterprise Hardware & Building Supplies'}</span>
+              <span>{storeProfile?.name || 'DMi Enterprise Hardware & Building Supplies'}</span>
               <span className="text-[10px] bg-blue-500/20 text-blue-300 font-semibold px-2 py-0.5 rounded-full border border-blue-500/30">
                 POS Terminal v2.4
               </span>
             </h1>
             <p className="text-xs text-slate-400 flex items-center gap-1.5">
               <Building2 className="w-3 h-3 text-slate-500" />
-              <span>{activeBranch ? activeBranch.name : 'Nairobi Main Branch'}</span>
+              <span>{activeBranch?.name || 'Nairobi Main Branch'}</span>
               <span>•</span>
               <span className="text-emerald-400 flex items-center gap-1 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -707,19 +707,19 @@ export const LoginDashboard: React.FC = () => {
                     >
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-white">
-                          {emp.name
+                          {(emp?.name || 'Staff')
                             .split(' ')
                             .map((n) => n[0])
                             .join('')
                             .slice(0, 2)}
                         </div>
                         <div>
-                          <div className="text-xs font-bold leading-tight">{emp.name}</div>
-                          <div className="text-[10px] text-slate-400 capitalize">{emp.role}</div>
+                          <div className="text-xs font-bold leading-tight">{emp?.name || 'Staff Member'}</div>
+                          <div className="text-[10px] text-slate-400 capitalize">{emp?.role || 'staff'}</div>
                         </div>
                       </div>
                       <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">
-                        {emp.pin}
+                        {emp?.pin || '••••'}
                       </span>
                     </div>
                   );
@@ -839,7 +839,7 @@ export const LoginDashboard: React.FC = () => {
                 </button>
 
                 <p className="text-[11px] text-slate-500">
-                  Enrolled staff: {employees.map((e) => `${e.name} (${e.role})`).join(', ') || 'None enrolled'}
+                  Enrolled staff: {(employees || []).map((e) => `${e?.name || 'Staff'} (${e?.role || 'user'})`).join(', ') || 'None enrolled'}
                 </p>
               </div>
             </div>

@@ -83,11 +83,11 @@ export const ContactsManager: React.FC = () => {
     // Add Customers
     customers.forEach((c) => {
       list.push({
-        id: `cust-${c.id}`,
-        name: c.name,
-        phone: c.phone,
+        id: `cust-${c?.id || Math.random()}`,
+        name: c?.name || 'Customer',
+        phone: c?.phone || '',
         email: undefined,
-        location: c.location || 'Local Buyer',
+        location: c?.location || 'Local Buyer',
         type: 'customer',
         customerData: c,
       });
@@ -96,11 +96,11 @@ export const ContactsManager: React.FC = () => {
     // Add Staff
     employees.forEach((e) => {
       list.push({
-        id: `staff-${e.id}`,
-        name: e.name,
-        phone: e.phone || '',
-        email: e.email,
-        location: e.branchName || 'All Branches',
+        id: `staff-${e?.id || Math.random()}`,
+        name: e?.name || 'Staff',
+        phone: e?.phone || '',
+        email: e?.email,
+        location: e?.branchName || 'All Branches',
         type: 'staff',
         staffData: e,
       });
@@ -109,11 +109,11 @@ export const ContactsManager: React.FC = () => {
     // Add Suppliers
     suppliers.forEach((s) => {
       list.push({
-        id: `supp-${s.id}`,
-        name: s.name,
-        phone: s.phone,
+        id: `supp-${s?.id || Math.random()}`,
+        name: s?.name || 'Supplier',
+        phone: s?.phone || '',
         email: undefined,
-        location: s.location || 'Distributor HQ',
+        location: s?.location || 'Distributor HQ',
         type: 'supplier',
         supplierData: s,
       });
@@ -361,7 +361,7 @@ export const ContactsManager: React.FC = () => {
               <option value="all">📍 All Outlets Context</option>
               {branches.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.name} ({b.code})
+                  {b?.name || 'Branch'} ({b?.code || ''})
                 </option>
               ))}
             </select>
@@ -450,7 +450,7 @@ export const ContactsManager: React.FC = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-slate-900 text-sm leading-tight">
-                          {contact.name}
+                          {contact?.name || 'Contact'}
                         </h3>
                         {contact.location && (
                           <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
@@ -603,7 +603,7 @@ export const ContactsManager: React.FC = () => {
                         <a
                           href={`tel:${contact.phone}`}
                           className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-                          title={`Call ${contact.name}`}
+                          title={`Call ${contact?.name || 'Contact'}`}
                         >
                           <Phone className="w-3.5 h-3.5" />
                         </a>
@@ -612,7 +612,7 @@ export const ContactsManager: React.FC = () => {
                           target="_blank"
                           rel="noreferrer"
                           className="p-2 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 transition"
-                          title={`Chat on WhatsApp with ${contact.name}`}
+                          title={`Chat on WhatsApp with ${contact?.name || 'Contact'}`}
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
                         </a>
@@ -840,7 +840,7 @@ export const ContactsManager: React.FC = () => {
                       >
                         {branches.map((b) => (
                           <option key={b.id} value={b.id}>
-                            {b.name}
+                            {b?.name || 'Branch'}
                           </option>
                         ))}
                       </select>

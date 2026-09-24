@@ -299,13 +299,14 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
   const allFleetTerminals = useMemo(() => {
     const list: any[] = [];
     (businesses || []).forEach((b: any) => {
-      if (Array.isArray(b.devices)) {
+      if (b && Array.isArray(b.devices)) {
         b.devices.forEach((d: any) => {
+          if (!d) return;
           list.push({
             id: d.id || d.device_id,
             name: d.name || d.device_name || `Terminal (${d.connection_type || 'WiFi'})`,
-            tenantId: b.businessId,
-            tenantName: b.name,
+            tenantId: b.businessId || b.id,
+            tenantName: b.name || b.businessName || 'Business',
             connectionType: d.connection_type || 'WiFi',
             isOnline: Boolean(d.is_online),
             appVersion: d.app_version || '2.4.1-prod',
@@ -342,7 +343,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
       seen.add(businessIdentity.businessId);
       list.unshift({
         businessId: businessIdentity.businessId,
-        businessName: businessIdentity.name || storeProfile?.name || 'DMi Business Store',
+        businessName: businessIdentity?.name || storeProfile?.name || 'DMi Business Store',
         ownerName: businessIdentity.ownerName || 'David Migichi',
         subscriptionPlan: subscription?.tier || 'Business',
         status: subscription?.status || 'active',
@@ -415,25 +416,25 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
   // Plans, Invoices, Settings, Logs directly from Supabase SWR
   const plans = useMemo(() => {
     if (livePlansData && livePlansData.length > 0) {
-      return livePlansData.map((p) => ({
-        id: `plan-${p.id}`,
-        code: p.id,
-        name: `DMi ${p.name}`,
-        tier: p.name as any,
-        monthlyPriceKes: p.monthly_fee,
-        annualPriceKes: p.annual_fee,
-        maxBranches: p.limits.max_branches,
-        maxDevices: p.limits.max_devices,
-        maxUsers: p.limits.max_staff,
-        maxProducts: p.limits.max_products,
+      return livePlansData.map((p: any) => ({
+        id: `plan-${p?.id || 'std'}`,
+        code: p?.id || 'standard',
+        name: p?.name ? `DMi ${p.name}` : `DMi ${p?.tier || 'Plan'}`,
+        tier: (p?.tier || p?.name || 'Starter') as any,
+        monthlyPriceKes: p?.monthly_fee ?? 2500,
+        annualPriceKes: p?.annual_fee ?? 25000,
+        maxBranches: p?.limits?.max_branches ?? 1,
+        maxDevices: p?.limits?.max_devices ?? 2,
+        maxUsers: p?.limits?.max_staff ?? 3,
+        maxProducts: p?.limits?.max_products ?? 1000,
         features: [
-          `${p.limits.max_branches} branch${p.limits.max_branches > 1 ? 'es' : ''} operation`,
-          `Up to ${p.limits.max_devices} connected terminals`,
+          `${p?.limits?.max_branches ?? 1} branch${(p?.limits?.max_branches ?? 1) > 1 ? 'es' : ''} operation`,
+          `Up to ${p?.limits?.max_devices ?? 2} connected terminals`,
           `Real-time offline-first sales engine`,
           `Automated daily cloud snapshots`,
         ],
         isActive: true,
-        supportLevel: p.id === 'enterprise' ? 'dedicated_account_manager' : 'priority_phone',
+        supportLevel: p?.id === 'enterprise' ? 'dedicated_account_manager' : 'priority_phone',
       }));
     }
     return [];
@@ -579,8 +580,8 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
     setNewBizRegisteredInfo({
       businessId: cleanBizId,
       businessName: newBizName.trim(),
-      ownerName: ownerStaff.name,
-      ownerPin: ownerStaff.pin,
+      ownerName: ownerStaff?.name || newBizName.trim(),
+      ownerPin: ownerStaff?.pin || '1234',
       licenseKey: generatedLicense,
       planTier,
       maxDevs,
@@ -733,7 +734,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
     if (!extendGraceModal) return;
     try {
       await grantClientGrace(extendGraceModal.business.businessId, extendGraceModal.days);
-      showToast(`Grace period granted for ${extendGraceModal.business.name || extendGraceModal.business.businessId} (+${extendGraceModal.days} days).`);
+      showToast(`Grace period granted for ${extendGraceModal.business?.name || extendGraceModal.business?.businessName || extendGraceModal.business?.businessId} (+${extendGraceModal.days} days).`);
       setExtendGraceModal(null);
       await mutateClients();
       await mutateMetrics();
@@ -746,7 +747,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
     const isCurrentlySuspended = biz.computedStatus === 'suspended';
     try {
       await setClientSuspension(biz.businessId, !isCurrentlySuspended);
-      showToast(isCurrentlySuspended ? `Reactivated ${biz.name}` : `Suspended ${biz.name}`);
+      showToast(isCurrentlySuspended ? `Reactivated ${biz?.name || biz?.businessName || 'Business'}` : `Suspended ${biz?.name || biz?.businessName || 'Business'}`);
       await mutateClients();
       await mutateMetrics();
     } catch (err: any) {
@@ -760,7 +761,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
       const pkg = changePlanModal.planCode;
       const fee = pkg.toLowerCase() === 'starter' ? 2500 : pkg.toLowerCase() === 'enterprise' ? 25000 : 7500;
       await updateClientPlan(changePlanModal.business.businessId, pkg, 'monthly', fee);
-      showToast(`Updated plan for ${changePlanModal.business.name} to ${pkg}`);
+      showToast(`Updated plan for ${changePlanModal.business?.name || changePlanModal.business?.businessName || 'Business'} to ${pkg}`);
       setChangePlanModal(null);
       await mutateClients();
       await mutateMetrics();
@@ -787,7 +788,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
       );
 
       if (result) {
-        showToast(`Audited support session activated for ${targetBusiness.name}. Opening business in system...`);
+        showToast(`Audited support session activated for ${targetBusiness?.name || targetBusiness?.businessName || 'Business'}. Opening business in system...`);
         await mutateSupport();
       }
       setSupportAccessModal(null);
@@ -1528,13 +1529,13 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                     return (
                       <tr key={biz.businessId} className="hover:bg-slate-50/70 transition">
                         <td className="py-3.5 px-4">
-                          <div className="font-bold text-slate-900">{biz.name}</div>
+                          <div className="font-bold text-slate-900">{biz?.name || biz?.businessName || 'Business'}</div>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="font-mono text-blue-600 font-bold text-[11px]">
                               {biz.businessId}
                             </span>
                             <span className="text-slate-300">•</span>
-                            <span className="text-slate-400 text-[11px]">{biz.location}</span>
+                            <span className="text-slate-400 text-[11px]">{biz.location || 'Kenya'}</span>
                           </div>
                         </td>
 
@@ -1654,12 +1655,12 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                               onClick={() =>
                                 setSupportAccessModal({
                                   business: biz,
-                                  reason: `Support inspection for ${biz.name} operational data and inventory`,
+                                  reason: `Support inspection for ${biz?.name || biz?.businessName || 'Business'} operational data and inventory`,
                                   durationMinutes: 30,
                                   dataScopes: ['Sales report', 'Sales transactions', 'Stock inventory', 'Device status'],
                                 })
                               }
-                              title={`Start Audited Support Session & View ${biz.name} in the system`}
+                              title={`Start Audited Support Session & View ${biz?.name || biz?.businessName || 'Business'} in the system`}
                               className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition cursor-pointer flex items-center gap-1 shadow-xs"
                             >
                               <Shield className="w-3.5 h-3.5" />
@@ -1699,9 +1700,9 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                   onChange={(e) => setActiveRenewalBizId(e.target.value)}
                   className="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none"
                 >
-                  {businesses.map((b) => (
+                  {(businesses || []).map((b) => (
                     <option key={b.businessId} value={b.businessId}>
-                      {b.name} ({b.computedStatus})
+                      {b?.name || b?.businessName || b.businessId} ({b.computedStatus || 'active'})
                     </option>
                   ))}
                 </select>
@@ -2509,8 +2510,8 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                       <tr key={term.id} className="hover:bg-slate-50/70 transition">
                         <td className="py-3 px-4">
                           <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                            <span className={`w-2 h-2 rounded-full ${term.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-                            <span>{term.name}</span>
+                            <span className={`w-2 h-2 rounded-full ${term?.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                            <span>{term?.name || 'Terminal'}</span>
                           </div>
                           <span className="font-mono text-[10px] text-blue-600 font-semibold">{term.id}</span>
                         </td>
@@ -2558,7 +2559,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="text-base font-bold text-slate-900">
-                  {selectedBusinessDetail.name}
+                  {selectedBusinessDetail?.name || selectedBusinessDetail?.businessName || 'Business Detail'}
                 </h3>
                 <span className="font-mono text-xs text-blue-600 font-bold">
                   {selectedBusinessDetail.businessId}
@@ -2641,7 +2642,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
               </div>
 
               <div className="pt-3 border-t border-slate-100 p-3 bg-slate-50 rounded-xl text-[11px] text-slate-500">
-                🔒 <strong>Data Privacy:</strong> Individual customer receipts and stock records are private to {selectedBusinessDetail.name}. To examine internal ledger issues, initiate an Audited Support Session.
+                🔒 <strong>Data Privacy:</strong> Individual customer receipts and stock records are private to {selectedBusinessDetail?.name || selectedBusinessDetail?.businessName || 'this business'}. To examine internal ledger issues, initiate an Audited Support Session.
               </div>
             </div>
 
@@ -2703,7 +2704,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
             <div className="py-4 space-y-4 text-xs text-slate-600">
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs leading-relaxed">
                 You are requesting technical support access to{' '}
-                <strong>{supportAccessModal.business.name}</strong>. In accordance with DMi tenant isolation principles, this session is <strong>VIEW ONLY</strong>, time-bounded, and will appear in the customer's security audit camera.
+                <strong>{supportAccessModal.business?.name || supportAccessModal.business?.businessName || 'Business'}</strong>. In accordance with DMi tenant isolation principles, this session is <strong>VIEW ONLY</strong>, time-bounded, and will appear in the customer's security audit camera.
               </div>
 
               <div>
@@ -2824,7 +2825,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
               Extend Grace Period
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Grant temporary operational extension for {extendGraceModal.business.name}
+              Grant temporary operational extension for {extendGraceModal.business?.name || extendGraceModal.business?.businessName || extendGraceModal.business?.businessId || 'Business'}
             </p>
 
             <div className="py-4 space-y-3">

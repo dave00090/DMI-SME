@@ -118,7 +118,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
         <div className="min-w-0">
           <div className="flex items-center space-x-2 flex-wrap sm:flex-nowrap gap-y-1">
             <h2 className="text-sm sm:text-base md:text-lg font-bold text-slate-800 tracking-tight truncate max-w-[180px] sm:max-w-none">
-              {storeProfile.name}
+              {storeProfile?.name || 'DMi Business Store'}
             </h2>
             {isOwner && (
               <button
@@ -141,9 +141,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
                     title={isHeadManager ? "Head Manager Cross-Branch Navigator" : "Owner Cross-Branch Switcher"}
                   >
                     <option value="all">🌐 All Outlets (Consolidated)</option>
-                    {branches.map((b) => (
+                    {(branches || []).map((b) => (
                       <option key={b.id} value={b.id}>
-                        📍 {b.name} ({b.code})
+                        📍 {b?.name || 'Branch'} ({b?.code || ''})
                       </option>
                     ))}
                   </select>
@@ -162,7 +162,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
             </div>
 
             <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200 shrink-0 whitespace-nowrap">
-              Till: {activeBranch?.tillNumber || storeProfile.tillNumber}
+              Till: {activeBranch?.tillNumber || storeProfile?.tillNumber || 'N/A'}
             </span>
 
             {/* Live Support Session Badge for Transparency */}
@@ -181,15 +181,15 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
             <span className="text-slate-300">•</span>
             <span className="flex items-center gap-1">
               <span>Logged In: </span>
-              <strong className="text-slate-800 font-semibold">{currentEmployee.name}</strong>
+              <strong className="text-slate-800 font-semibold">{currentEmployee?.name || 'Staff'}</strong>
               <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded uppercase tracking-wider ${
-                currentEmployee.role === 'owner'
+                currentEmployee?.role === 'owner'
                   ? 'bg-purple-100 text-purple-800 border border-purple-200'
-                  : currentEmployee.role === 'manager'
+                  : currentEmployee?.role === 'manager'
                   ? 'bg-blue-100 text-blue-800 border border-blue-200'
                   : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
               }`}>
-                {currentEmployee.role}
+                {currentEmployee?.role || 'staff'}
               </span>
             </span>
             <span className="text-slate-300">•</span>

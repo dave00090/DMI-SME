@@ -61,18 +61,18 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-1.5 font-medium text-amber-400">
               <Store className="w-3.5 h-3.5" />
-              <span>{storeProfile.name}</span>
+              <span>{storeProfile?.name || 'DMi Store'}</span>
             </div>
             <div className="hidden sm:flex items-center gap-1 text-slate-400">
               <MapPin className="w-3 h-3" />
-              <span>{storeProfile.location}</span>
+              <span>{storeProfile?.location || 'Store Location'}</span>
             </div>
             <div className="hidden md:flex items-center gap-2">
               <span className="bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded text-[11px] font-mono border border-emerald-800">
-                Till: {storeProfile.tillNumber}
+                Till: {storeProfile?.tillNumber || 'N/A'}
               </span>
               <span className="bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded text-[11px] font-mono border border-emerald-800">
-                Paybill: {storeProfile.paybillNumber}
+                Paybill: {storeProfile?.paybillNumber || 'N/A'}
               </span>
             </div>
           </div>

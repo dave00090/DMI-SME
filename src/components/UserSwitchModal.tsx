@@ -240,11 +240,11 @@ export const UserSwitchModal: React.FC<UserSwitchModalProps> = ({ isOpen, onClos
               <KeyRound className="w-6 h-6" />
             </div>
             <h4 className="text-sm font-bold text-slate-900">
-              {selectedEmp ? `Authenticate ${selectedEmp.name}` : 'Select an Employee'}
+              {selectedEmp?.name ? `Authenticate ${selectedEmp.name}` : 'Select an Employee'}
             </h4>
             <p className="text-xs text-slate-500">
               {selectedEmp
-                ? `Enter 4-digit PIN for ${selectedEmp.role.toUpperCase()}`
+                ? `Enter 4-digit PIN for ${(selectedEmp.role || 'STAFF').toUpperCase()}`
                 : 'Click an employee on the left to enter PIN'}
             </p>
           </div>

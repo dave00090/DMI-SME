@@ -177,7 +177,7 @@ export const StaffRegisterModal: React.FC<StaffRegisterModalProps> = ({
             <div>
               <h3 className="text-base font-bold tracking-tight">Register New Staff User</h3>
               <p className="text-xs text-slate-300">
-                Authorized by: {activeAuthorizer ? `${activeAuthorizer.name} (${activeAuthorizer.role.toUpperCase()})` : 'Manager / Owner'}
+                Authorized by: {activeAuthorizer ? `${activeAuthorizer?.name || 'Supervisor'} (${(activeAuthorizer?.role || 'manager').toUpperCase()})` : 'Manager / Owner'}
               </p>
             </div>
           </div>
@@ -262,11 +262,11 @@ export const StaffRegisterModal: React.FC<StaffRegisterModalProps> = ({
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span className="text-slate-600">
-                  Authorized by: <strong className="text-slate-900">{activeAuthorizer.name}</strong> ({activeAuthorizer.role.toUpperCase()})
+                  Authorized by: <strong className="text-slate-900">{activeAuthorizer?.name || 'Administrator'}</strong> ({activeAuthorizer?.role ? activeAuthorizer.role.toUpperCase() : 'ADMIN'})
                 </span>
               </div>
               <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">
-                {activeAuthorizer.branchName}
+                {activeAuthorizer?.branchName || 'Main Branch'}
               </span>
             </div>
 
@@ -373,9 +373,9 @@ export const StaffRegisterModal: React.FC<StaffRegisterModalProps> = ({
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                   Allocate Branch <span className="text-rose-500">*</span>
                 </label>
-                {isManager && activeAuthorizer.branchId !== 'all' ? (
+                {isManager && activeAuthorizer?.branchId !== 'all' ? (
                   <div className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 text-xs font-semibold text-slate-700">
-                    {activeAuthorizer.branchName} (Locked to your branch)
+                    {activeAuthorizer?.branchName || 'Current Branch'} (Locked to your branch)
                   </div>
                 ) : (
                   <select
@@ -386,7 +386,7 @@ export const StaffRegisterModal: React.FC<StaffRegisterModalProps> = ({
                     {isOwner && <option value="all">All Branches (Head Office)</option>}
                     {branches.map((b) => (
                       <option key={b.id} value={b.id}>
-                        {b.name} ({b.code})
+                        {b?.name || 'Branch'} ({b?.code || ''})
                       </option>
                     ))}
                   </select>

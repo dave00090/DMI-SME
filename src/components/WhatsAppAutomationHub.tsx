@@ -459,7 +459,7 @@ export const WhatsAppAutomationHub: React.FC = () => {
                 onClick={() => {
                   const supplier = suppliers.find((s) => s.id === selectedSupplierId) || suppliers[0];
                   const branch = branches.find((b) => b.id === selectedDeliveryBranchId) || branches[0];
-                  sendSupplierOrderWhatsApp(supplier, poOrderItems, branch.name);
+                  sendSupplierOrderWhatsApp(supplier, poOrderItems, branch?.name || 'Main Branch');
                 }}
                 className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
               >
@@ -479,7 +479,7 @@ export const WhatsAppAutomationHub: React.FC = () => {
 
               <div className="mt-4 bg-[#075E54] p-4 rounded-xl text-xs space-y-2 text-white/90 font-mono leading-relaxed whitespace-pre-line shadow-inner">
                 {`*OFFICIAL PURCHASE ORDER / REQUISITION*
-From: ${storeProfile.name}
+From: ${storeProfile?.name || 'DMi Business Store'}
 To: ${suppliers.find((s) => s.id === selectedSupplierId)?.name || 'Supplier'}
 Attention: ${suppliers.find((s) => s.id === selectedSupplierId)?.contactPerson || 'Sales Team'}
 

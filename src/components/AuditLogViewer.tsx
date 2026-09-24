@@ -585,7 +585,7 @@ export const AuditLogViewer: React.FC = () => {
                 {availableDevices.map((dev) => (
                   <option key={dev.id} value={dev.id}>
                     {dev.terminalNumber ? `[${dev.terminalNumber}] ` : ''}
-                    {dev.name}
+                    {dev?.name || 'Terminal'}
                   </option>
                 ))}
               </select>
@@ -602,7 +602,7 @@ export const AuditLogViewer: React.FC = () => {
                 <option value="all">All Branches ({branches.length})</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.name}
+                    {b?.name || 'Branch'}
                   </option>
                 ))}
               </select>
@@ -619,7 +619,7 @@ export const AuditLogViewer: React.FC = () => {
                 <option value="all">All Staff ({employees.length})</option>
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.name} ({emp.role.toUpperCase()})
+                    {emp?.name || 'Staff'} ({(emp?.role || 'staff').toUpperCase()})
                   </option>
                 ))}
               </select>

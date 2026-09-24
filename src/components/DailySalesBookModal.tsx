@@ -98,13 +98,13 @@ export const DailySalesBookModal: React.FC<DailySalesBookModalProps> = ({
     };
 
     const text = `=============================
-*${storeProfile.name.toUpperCase()}*
+*${(storeProfile?.name || 'DMi Business Store').toUpperCase()}*
 *DAILY SALES BOOK Z-REPORT*
 =============================
 Date: ${b?.date || todayFormatted}
 Opened At: ${b?.openedAt ? new Date(b.openedAt).toLocaleTimeString() : 'Morning'}
 Closed At: ${b?.closedAt ? new Date(b.closedAt).toLocaleTimeString() : new Date().toLocaleTimeString()}
-Cashier: ${b?.closedBy || b?.openedBy || storeProfile.cashierName}
+Cashier: ${b?.closedBy || b?.openedBy || storeProfile?.cashierName || 'Cashier'}
 Opening Cash Float: KSh ${(b?.openingCashFloat || 0).toLocaleString()}
 
 --- BUSINESS INTELLIGENCE ---
@@ -141,7 +141,7 @@ Generated via DMi Business OS`;
       stockValue: totalStockCostValue,
     };
 
-    const msg = `*${storeProfile.name} - End-of-Day Sales Book Summary*
+    const msg = `*${storeProfile?.name || 'DMi Business Store'} - End-of-Day Sales Book Summary*
 📅 ${todayFormatted}
 
 *Business Intelligence:*

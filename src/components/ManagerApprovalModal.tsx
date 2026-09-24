@@ -218,7 +218,7 @@ export const ManagerApprovalModal: React.FC<ManagerApprovalModalProps> = ({
                   }}
                   className="px-2 py-1 text-[10px] font-medium bg-slate-100 hover:bg-amber-50 hover:text-amber-800 text-slate-600 rounded-md border border-slate-200 transition-colors"
                 >
-                  {m.name} ({m.role.toUpperCase()} - {m.pin})
+                  {m?.name || 'Manager'} ({(m?.role || 'manager').toUpperCase()} - {m?.pin || ''})
                 </button>
               ))}
             </div>

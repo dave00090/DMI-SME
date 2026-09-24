@@ -538,18 +538,19 @@ export async function fetchPlans(): Promise<AuthoritativePlan[]> {
 
   const res = await fetch('/api/plans');
   if (!res.ok) throw new Error('Failed to fetch plans');
-  const plans = await res.json();
-  return plans.map((p: any) => ({
-    id: p.id,
-    name: p.name,
-    monthly_fee: p.monthly_fee,
-    annual_fee: p.annual_fee,
+  const raw = await res.json();
+  const list = Array.isArray(raw) ? raw : (raw?.plans && Array.isArray(raw.plans) ? raw.plans : []);
+  return list.map((p: any) => ({
+    id: p?.id || 'standard',
+    name: p?.name || p?.tier || 'Standard Plan',
+    monthly_fee: p?.monthly_fee ?? p?.price_kes ?? 2500,
+    annual_fee: p?.annual_fee ?? (p?.price_kes ? p.price_kes * 10 : 25000),
     limits: {
-      max_branches: p.max_branches,
-      max_devices: p.max_devices,
-      max_staff: p.max_staff,
-      max_products: p.max_products,
-      offline_grace_days: p.offline_grace_days,
+      max_branches: p?.limits?.max_branches ?? p?.max_branches ?? 1,
+      max_devices: p?.limits?.max_devices ?? p?.max_devices ?? 2,
+      max_staff: p?.limits?.max_staff ?? p?.max_staff ?? 3,
+      max_products: p?.limits?.max_products ?? p?.max_products ?? 1000,
+      offline_grace_days: p?.limits?.offline_grace_days ?? p?.offline_grace_days ?? 14,
     },
   }));
 }

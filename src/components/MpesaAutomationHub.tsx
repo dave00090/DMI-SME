@@ -1217,7 +1217,7 @@ export const MpesaAutomationHub: React.FC = () => {
                     .filter((c) => c.outstandingDebt > 0)
                     .map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.name} (Balance: KSh {c.outstandingDebt.toLocaleString()})
+                        {c?.name || 'Customer'} (Balance: KSh {(c?.outstandingDebt || 0).toLocaleString()})
                       </option>
                     ))}
                 </select>

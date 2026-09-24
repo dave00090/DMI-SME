@@ -68,7 +68,7 @@ export const InventoryManager: React.FC = () => {
   }, [storeProfile?.industry]);
 
   const dynamicCategories = useMemo(() => {
-    return currentIndustryDef.categories;
+    return currentIndustryDef?.categories || [];
   }, [currentIndustryDef]);
 
   const [newProd, setNewProd] = useState({
@@ -145,7 +145,7 @@ export const InventoryManager: React.FC = () => {
     if (!selectedProductForAdj) return;
     adjustStock({
       productId: selectedProductForAdj.id,
-      productName: selectedProductForAdj.name,
+      productName: selectedProductForAdj?.name || 'Product',
       quantityChange: adjQty,
       reason: adjReason,
       notes: adjNotes,
@@ -480,7 +480,7 @@ export const InventoryManager: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-bold text-base text-slate-900">Restock Product (Stock In)</h3>
-                <p className="text-xs text-slate-500">{selectedProductForRestock.name}</p>
+                <p className="text-xs text-slate-500">{selectedProductForRestock?.name || 'Product'}</p>
               </div>
               <button
                 onClick={() => setIsRestockModalOpen(false)}
@@ -568,7 +568,7 @@ export const InventoryManager: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-bold text-base text-slate-900">Record Damaged / Lost Goods</h3>
-                <p className="text-xs text-slate-500">{selectedProductForAdj.name}</p>
+                <p className="text-xs text-slate-500">{selectedProductForAdj?.name || 'Product'}</p>
               </div>
               <button
                 onClick={() => setIsAdjustmentModalOpen(false)}
@@ -660,7 +660,7 @@ export const InventoryManager: React.FC = () => {
               {/* Business Industry & Service Option */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
                 <span className="text-slate-600 font-medium text-[11px]">
-                  Business Type: <strong className="text-slate-900">{currentIndustryDef.name}</strong>
+                  Business Type: <strong className="text-slate-900">{currentIndustryDef?.name || 'General Retail'}</strong>
                 </span>
                 <label className="flex items-center gap-2 cursor-pointer text-blue-700 font-semibold text-xs">
                   <input
@@ -837,9 +837,9 @@ export const InventoryManager: React.FC = () => {
             </div>
 
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
-              <div className="font-semibold text-slate-900">{productToDelete.name}</div>
+              <div className="font-semibold text-slate-900">{productToDelete?.name || 'Product'}</div>
               <div className="text-slate-500 font-mono text-[11px]">
-                {productToDelete.sku} • Stock: {productToDelete.stockQuantity} {productToDelete.unit} • Price: KSh {productToDelete.sellingPrice.toLocaleString()}
+                {productToDelete?.sku} • Stock: {productToDelete?.stockQuantity} {productToDelete?.unit} • Price: KSh {(productToDelete?.sellingPrice || 0).toLocaleString()}
               </div>
             </div>
 

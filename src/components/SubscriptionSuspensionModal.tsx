@@ -14,7 +14,7 @@ export const SubscriptionSuspensionModal: React.FC<SubscriptionSuspensionModalPr
   onOpenBilling,
 }) => {
   const { businessIdentity, currentEmployee, logoutEmployee } = useBusiness();
-  const isOwner = currentEmployee.role === 'owner';
+  const isOwner = currentEmployee?.role === 'owner';
 
   if (!isOpen) return null;
 
@@ -35,7 +35,7 @@ export const SubscriptionSuspensionModal: React.FC<SubscriptionSuspensionModalPr
             DMi Business Service Temporarily Paused
           </h2>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Account: <strong>{businessIdentity.name}</strong> ({businessIdentity.businessId})
+            Account: <strong>{businessIdentity?.name || 'DMi Business Store'}</strong> ({businessIdentity?.businessId || 'BIZ-MAIN'})
           </p>
         </div>
 

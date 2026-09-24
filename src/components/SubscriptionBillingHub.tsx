@@ -49,7 +49,7 @@ export const SubscriptionBillingHub: React.FC = () => {
       : 'business'
   );
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
-  const [mpesaPhone, setMpesaPhone] = useState(businessIdentity.ownerPhone || '0712345678');
+  const [mpesaPhone, setMpesaPhone] = useState(businessIdentity?.ownerPhone || '0712345678');
   const [isRenewing, setIsRenewing] = useState(false);
   const [renewalSuccessMsg, setRenewalSuccessMsg] = useState<string | null>(null);
   const [renewalErrorMsg, setRenewalErrorMsg] = useState<string | null>(null);
@@ -68,8 +68,8 @@ export const SubscriptionBillingHub: React.FC = () => {
     {
       id: 'inv-202609-001',
       invoiceNumber: 'DMI-INV-2026-0901',
-      businessId: businessIdentity.businessId,
-      businessName: businessIdentity.name,
+      businessId: businessIdentity?.businessId || 'BIZ-MAIN',
+      businessName: businessIdentity?.name || 'DMi Business Store',
       planCode: 'business',
       planName: 'DMi Business',
       amountKes: 2000,
@@ -79,13 +79,13 @@ export const SubscriptionBillingHub: React.FC = () => {
       periodStart: '2026-09-01T00:00:00Z',
       periodEnd: '2026-10-01T00:00:00Z',
       status: 'paid',
-      notes: `Verified M-Pesa renewal for ${businessIdentity.name}`,
+      notes: `Verified M-Pesa renewal for ${businessIdentity?.name || 'DMi Business Store'}`,
     },
     {
       id: 'inv-202608-001',
       invoiceNumber: 'DMI-INV-2026-0801',
-      businessId: businessIdentity.businessId,
-      businessName: businessIdentity.name,
+      businessId: businessIdentity?.businessId || 'BIZ-MAIN',
+      businessName: businessIdentity?.name || 'DMi Business Store',
       planCode: 'business',
       planName: 'DMi Business',
       amountKes: 2000,
@@ -178,13 +178,13 @@ export const SubscriptionBillingHub: React.FC = () => {
             if (queryData.invoice) {
               setInvoices((prev) => [queryData.invoice, ...prev]);
             }
-            updateSubscriptionTier(currentPlanObj.tier);
+            updateSubscriptionTier(currentPlanObj?.tier || 'business');
             addAuditLog({
               userId: employees[0]?.id || 'emp-owner',
               userName: employees[0]?.name || 'Platform Owner',
               userRole: employees[0]?.role || 'owner',
               action: 'subscription_tier_change',
-              targetDescription: `Business renewed subscription to ${currentPlanObj.name} via Live M-Pesa STK Push (Receipt: ${receipt})`,
+              targetDescription: `Business renewed subscription to ${currentPlanObj?.name || 'DMi Plan'} via Live M-Pesa STK Push (Receipt: ${receipt})`,
             });
           } else if (queryData.status === 'cancelled') {
             if (pollingRef.current) clearInterval(pollingRef.current);
@@ -270,13 +270,13 @@ export const SubscriptionBillingHub: React.FC = () => {
               </div>
               <p className="text-xs text-slate-500 mt-1">
                 Account:{' '}
-                <strong className="text-slate-700">{businessIdentity.name}</strong> (ID:{' '}
+                <strong className="text-slate-700">{businessIdentity?.name || 'DMi Business Store'}</strong> (ID:{' '}
                 <span className="font-mono text-blue-600 font-semibold">
-                  {businessIdentity.businessId}
+                  {businessIdentity?.businessId || 'BIZ-MAIN'}
                 </span>
                 ) • Current Plan:{' '}
                 <span className="font-semibold text-slate-800">
-                  DMi {subscription.tier || 'Business'}
+                  DMi {subscription?.tier || 'Business'}
                 </span>
               </p>
             </div>
@@ -522,7 +522,7 @@ export const SubscriptionBillingHub: React.FC = () => {
               <div>
                 <span className="text-xs text-slate-400 block">Renewing Package</span>
                 <span className="text-sm font-bold text-slate-800">
-                  {currentPlanObj.name} ({billingCycle === 'annual' ? '12 Months' : '1 Month'})
+                  {currentPlanObj?.name || 'DMi Plan'} ({billingCycle === 'annual' ? '12 Months' : '1 Month'})
                 </span>
               </div>
               <div className="text-right">
@@ -616,7 +616,7 @@ export const SubscriptionBillingHub: React.FC = () => {
           <div>
             <h2 className="text-base font-bold text-slate-900">Subscription Invoices & Receipts</h2>
             <p className="text-xs text-slate-500">
-              Auditable records of all subscription payments made by {businessIdentity.name}
+              Auditable records of all subscription payments made by {businessIdentity?.name || 'DMi Business Store'}
             </p>
           </div>
           <span className="text-xs text-slate-400 font-medium">

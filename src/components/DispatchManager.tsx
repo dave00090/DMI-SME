@@ -219,15 +219,15 @@ export const DispatchManager: React.FC = () => {
     });
 
     orderDispatch({
-      sourceBranchId: sourceBranch.id,
-      sourceBranchName: sourceBranch.name,
-      destBranchId: destBranch.id,
-      destBranchName: destBranch.name,
+      sourceBranchId: sourceBranch?.id || 'branch-1',
+      sourceBranchName: sourceBranch?.name || 'Main Branch',
+      destBranchId: destBranch?.id || 'branch-2',
+      destBranchName: destBranch?.name || 'Destination Branch',
       items: validatedItems,
       urgency: orderUrgency,
-      orderedBy: currentEmployee.name,
-      orderedById: currentEmployee.id,
-      orderedByRole: currentEmployee.role,
+      orderedBy: currentEmployee?.name || 'Staff',
+      orderedById: currentEmployee?.id || 'emp-01',
+      orderedByRole: currentEmployee?.role || 'cashier',
       notes: orderNotes,
     });
 
@@ -272,7 +272,7 @@ export const DispatchManager: React.FC = () => {
 
   // Handler: Receive Delivery
   const handleReceiveOrder = (order: DispatchOrder) => {
-    receiveDispatchOrder(order.id, currentEmployee.name);
+    receiveDispatchOrder(order.id, currentEmployee?.name || 'Staff');
   };
 
   // Handler: Trigger Live Transfer Dispatch
@@ -374,9 +374,9 @@ export const DispatchManager: React.FC = () => {
                       ? 'bg-slate-900 text-white shadow-xs font-bold'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60'
                   }`}
-                  title={`${emp.name} (${emp.role})`}
+                  title={`${emp?.name || 'Staff'} (${emp?.role || 'staff'})`}
                 >
-                  <span className="font-semibold">{emp.name.split(' ')[0]}</span>
+                  <span className="font-semibold">{(emp?.name || 'Staff').split(' ')[0]}</span>
                   <span
                     className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${
                       isCurrent
@@ -444,7 +444,7 @@ export const DispatchManager: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    {simulationSuccessNotice.qty} units of {simulationSuccessNotice.productName} requested by {currentEmployee.name}. Per dual-control rules, stock cannot be released until David Migichi (Owner) grants the Go-Ahead.
+                    {simulationSuccessNotice.qty} units of {simulationSuccessNotice.productName} requested by {currentEmployee?.name || 'Staff'}. Per dual-control rules, stock cannot be released until David Migichi (Owner) grants the Go-Ahead.
                   </>
                 )}
               </p>
@@ -603,7 +603,7 @@ export const DispatchManager: React.FC = () => {
               <option value="all">All Branches</option>
               {branches.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.name} ({b.code})
+                  {b?.name || 'Branch'} ({b?.code || ''})
                 </option>
               ))}
             </select>
@@ -847,7 +847,7 @@ export const DispatchManager: React.FC = () => {
                 </span>
                 <h3 className="text-lg font-bold text-slate-900 mt-1">Create Cross-Branch Dispatch Order</h3>
                 <p className="text-xs text-slate-500">
-                  Ordered by: <strong className="text-slate-800">{currentEmployee.name}</strong> ({currentEmployee.role}).
+                  Ordered by: <strong className="text-slate-800">{currentEmployee?.name || 'Staff'}</strong> ({currentEmployee?.role || 'cashier'}).
                   Will be queued for Go-Ahead authorization.
                 </p>
               </div>
@@ -874,7 +874,7 @@ export const DispatchManager: React.FC = () => {
                   >
                     {branches.map((b) => (
                       <option key={b.id} value={b.id}>
-                        {b.name} ({b.code}) {b.isWarehouse ? '• Main Yard' : ''}
+                        {b?.name || 'Branch'} ({b?.code || ''}) {b?.isWarehouse ? '• Main Yard' : ''}
                       </option>
                     ))}
                   </select>
@@ -892,7 +892,7 @@ export const DispatchManager: React.FC = () => {
                   >
                     {branches.map((b) => (
                       <option key={b.id} value={b.id}>
-                        {b.name} ({b.code})
+                        {b?.name || 'Branch'} ({b?.code || ''})
                       </option>
                     ))}
                   </select>
@@ -959,7 +959,7 @@ export const DispatchManager: React.FC = () => {
                           >
                             {products.map((p) => (
                               <option key={p.id} value={p.id}>
-                                {p.name} ({p.sku})
+                                {p?.name || 'Product'} ({p?.sku || ''})
                               </option>
                             ))}
                           </select>
@@ -1055,7 +1055,7 @@ export const DispatchManager: React.FC = () => {
                   Grant Go-Ahead: {selectedOrderForAction.dispatchNumber}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Authorized by: <strong className="text-purple-900">{currentEmployee.name}</strong> ({currentEmployee.role})
+                  Authorized by: <strong className="text-purple-900">{currentEmployee?.name || 'Authorized Staff'}</strong> ({currentEmployee?.role || 'owner'})
                 </p>
               </div>
               <button
@@ -1221,7 +1221,7 @@ export const DispatchManager: React.FC = () => {
                 >
                   {branches.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {b.name} ({b.code})
+                      {b?.name || 'Branch'} ({b?.code || ''})
                     </option>
                   ))}
                 </select>
@@ -1236,7 +1236,7 @@ export const DispatchManager: React.FC = () => {
                 >
                   {branches.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {b.name} ({b.code})
+                      {b?.name || 'Branch'} ({b?.code || ''})
                     </option>
                   ))}
                 </select>
@@ -1252,7 +1252,7 @@ export const DispatchManager: React.FC = () => {
                   >
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name}
+                        {p?.name || 'Product'}
                       </option>
                     ))}
                   </select>
@@ -1281,7 +1281,7 @@ export const DispatchManager: React.FC = () => {
                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900">
                   <strong>Dual-Control Authorization Required:</strong>
                   <p className="mt-1 text-amber-800">
-                    You are signed in as <strong>{currentEmployee.name}</strong> ({currentEmployee.role}). This order will be queued as <strong>Pending Approval</strong> until David Migichi (Owner) grants the Go-Ahead.
+                    You are signed in as <strong>{currentEmployee?.name || 'Staff'}</strong> ({currentEmployee?.role || 'cashier'}). This order will be queued as <strong>Pending Approval</strong> until David Migichi (Owner) grants the Go-Ahead.
                   </p>
                 </div>
               )}
@@ -1342,10 +1342,10 @@ export const DispatchManager: React.FC = () => {
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <div className="text-[11px] text-slate-500">Currently Active Operator:</div>
                 <div className="font-bold text-slate-900 text-sm mt-0.5">
-                  {currentEmployee.name} <span className="text-xs text-slate-500 font-normal">({currentEmployee.role})</span>
+                  {currentEmployee?.name || 'Staff'} <span className="text-xs text-slate-500 font-normal">({currentEmployee?.role || 'cashier'})</span>
                 </div>
                 <div className="text-[11px] text-slate-500 mt-1">
-                  Branch: <span className="font-semibold text-slate-700">{branches.find((b) => b.id === currentEmployee.branchId)?.name || 'Main Branch'}</span>
+                  Branch: <span className="font-semibold text-slate-700">{branches.find((b) => b.id === currentEmployee?.branchId)?.name || 'Main Branch'}</span>
                 </div>
               </div>
 

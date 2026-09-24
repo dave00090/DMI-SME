@@ -484,28 +484,70 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Hydrate from localStorage or clean empty state
   const [storeProfile, setStoreProfile] = useState<StoreProfile>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}profile`);
-    return saved ? JSON.parse(saved) : emptyStoreProfile;
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}profile`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          return { ...initialStoreProfile, ...parsed };
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return initialStoreProfile;
   });
 
   const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}products`);
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}products`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return [];
   });
 
   const [customers, setCustomers] = useState<Customer[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}customers`);
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}customers`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return [];
   });
 
   const [suppliers, setSuppliers] = useState<Supplier[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}suppliers`);
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}suppliers`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return [];
   });
 
   const [supplierQuotes, setSupplierQuotes] = useState<SupplierQuote[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}quotes`);
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}quotes`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return [];
   });
 
   const [expenses, setExpenses] = useState<Expense[]>(() => {
@@ -620,8 +662,18 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Permanent Business Identity & Single Source of Truth
   const [businessIdentity, setBusinessIdentity] = useState<BusinessIdentity>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}business_identity`);
-    return saved ? JSON.parse(saved) : emptyBusinessIdentity;
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}business_identity`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          return { ...initialBusinessIdentity, ...parsed };
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return initialBusinessIdentity;
   });
 
   const [subscription, setSubscription] = useState<BusinessSubscription>(() => {
@@ -644,8 +696,16 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Hardware Terminals & Device Management
   const [connectedDevices, setConnectedDevices] = useState<ConnectedDevice[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}connected_devices`);
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}connected_devices`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return [];
   });
 
   const [currentDeviceId, setCurrentDeviceId] = useState<string>(() => {
@@ -654,21 +714,24 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
 
   const currentDevice = useMemo(() => {
-    return connectedDevices.find((d) => d.id === currentDeviceId) || connectedDevices[0] || {
+    const found = connectedDevices.find((d) => d && d.id === currentDeviceId);
+    if (found && found.name) return found;
+    if (connectedDevices[0] && connectedDevices[0].name) return connectedDevices[0];
+    return {
       id: 'dev-pos-01',
       name: 'Main POS Terminal',
       type: 'desktop_pc' as const,
       os: 'Web POS',
       role: 'owner' as const,
-      branchId: '',
-      branchName: '',
+      branchId: 'branch-1',
+      branchName: 'Main Branch',
       status: 'active' as const,
       lastSyncAt: new Date().toISOString(),
       ipAddress: '127.0.0.1',
       registeredAt: new Date().toISOString(),
       activationCode: '',
       isCurrentDevice: true,
-      currentStaffName: '',
+      currentStaffName: 'David Migichi',
       terminalNumber: 'TERM-01',
     };
   }, [connectedDevices, currentDeviceId]);
@@ -721,7 +784,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           businessId: businessIdentity.businessId,
-          name: businessIdentity.name,
+          name: businessIdentity?.name || 'DMi Store',
           ownerName: businessIdentity.ownerName,
           ownerEmail: businessIdentity.ownerEmail,
           ownerPhone: businessIdentity.ownerPhone,
@@ -909,8 +972,16 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // === VERSION 2: MULTI-BRANCH STATE ===
   const [branches, setBranches] = useState<Branch[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}branches`);
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}branches`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return initialBranches;
   });
 
   const [activeBranchId, setActiveBranchId] = useState<string>(() => {
@@ -1274,7 +1345,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       employeeId: currentEmployee?.id || 'emp-1',
       employeeName: currentEmployee?.name || 'Active Cashier',
       branchId: effectiveBranch?.id || 'branch-1',
-      branchName: effectiveBranch?.name || storeProfile.name,
+      branchName: effectiveBranch?.name || storeProfile?.name || 'Main Branch',
       timestamp: new Date().toISOString(),
       status: isOnline ? 'synced' : 'pending',
       syncedAt: isOnline ? new Date().toISOString() : undefined,
@@ -1315,11 +1386,11 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         addAuditLog({
           userId: currentEmployee.id,
-          userName: currentEmployee.name,
+          userName: currentEmployee?.name || 'Staff',
           userRole: currentEmployee.role,
           branchId: activeBranchId,
           action: 'sync_completed',
-          targetDescription: `Cloud event delta sync completed for terminal: ${currentDevice.name}`,
+          targetDescription: `Cloud event delta sync completed for terminal: ${currentDevice?.name || 'Terminal'}`,
           notes: `Reconciled ${eventsToSync.length} event deltas with DMi Central Cloud Database`,
         });
 
@@ -1342,7 +1413,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       action: 'business_profile_update',
       targetDescription: `Updated permanent business identity ${businessIdentity.businessId}`,
@@ -1373,7 +1444,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       action: 'subscription_upgrade',
       targetDescription: `Subscription tier changed to ${tier.toUpperCase()}`,
@@ -1952,7 +2023,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: target.branchId,
       branchName: target.branchName,
@@ -1975,7 +2046,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       intendedBranchName: branch.name,
       intendedRole: role,
       status: 'pending',
-      generatedBy: generatedBy || currentEmployee.name,
+      generatedBy: generatedBy || currentEmployee?.name || 'Staff',
     };
 
     setActivationCodes((prev) => [newCode, ...prev]);
@@ -1988,7 +2059,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: branch.id,
       branchName: branch.name,
@@ -2028,7 +2099,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       ipAddress: `192.168.1.${115 + connectedDevices.length}`,
       registeredAt: new Date().toISOString(),
       activationCode: cleanCode,
-      currentStaffName: currentEmployee.name,
+      currentStaffName: currentEmployee?.name || 'Staff',
       terminalNumber: `TERM-0${connectedDevices.length + 1}`,
       isCurrentDevice: true,
     };
@@ -2048,7 +2119,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       deviceId: newDevice.id,
       deviceName: newDevice.name,
       employeeId: currentEmployee.id,
-      employeeName: currentEmployee.name,
+      employeeName: currentEmployee?.name || 'Staff',
       role: targetRole,
       branchId: targetBranch.id,
       branchName: targetBranch.name,
@@ -2068,7 +2139,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: targetBranch.id,
       branchName: targetBranch.name,
@@ -2128,7 +2199,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     return {
       success: true,
-      message: `Device successfully authorized by Business Owner into ${businessIdentity.name}. Full database synchronized.`,
+      message: `Device successfully authorized by Business Owner into ${businessIdentity?.name || 'DMi Store'}. Full database synchronized.`,
       device: newDevice,
     };
   };
@@ -2163,7 +2234,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: target.branchId,
       branchName: target.branchName,
@@ -2222,7 +2293,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: oldDev.branchId,
       branchName: oldDev.branchName,
@@ -2315,7 +2386,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       paymentMethod: 'cash',
       branchId: dev.branchId,
       branchName: dev.branchName,
-      storeName: storeProfile.name,
+      storeName: storeProfile?.name || 'DMi Store',
       cashierId: 'emp-csh-nbo2',
       cashierName: dev.currentStaffName || 'Terminal Cashier',
       status: 'completed',
@@ -2365,11 +2436,11 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setIsRecoveredFromCrash(true);
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: activeBranchId,
       action: 'crash_recovery',
-      targetDescription: `Local crash recovery invoked for ${currentDevice.name}`,
+      targetDescription: `Local crash recovery invoked for ${currentDevice?.name || 'Terminal'}`,
       notes: `Restored ${sales.length} transactions and ${products.length} products with 0 data loss from local storage layer`,
     });
   };
@@ -2418,7 +2489,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       name,
       deletedAt: new Date().toISOString(),
       deletedBy: currentEmployee.id,
-      deletedByName: currentEmployee.name,
+      deletedByName: currentEmployee?.name || 'Staff',
       reason: reason || 'Archived per store policy',
       previousData: prevData,
     };
@@ -2431,12 +2502,12 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       entityType,
       entityId,
       description: `Soft delete: Archived ${entityType} '${name}'. Reason: ${reason}`,
-      deltaPayload: { reason, archivedBy: currentEmployee.name },
+      deltaPayload: { reason, archivedBy: currentEmployee?.name || 'Staff' },
     });
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: activeBranchId,
       action: 'soft_delete_vault',
@@ -2467,7 +2538,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: activeBranchId,
       action: 'vault_restore',
@@ -2509,7 +2580,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: activeBranchId,
       action: 'backup_created',
@@ -2528,7 +2599,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: activeBranchId,
       action: 'disaster_recovery_restore',
@@ -2560,11 +2631,11 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: activeBranchId,
       action: 'disaster_recovery_simulation',
-      targetDescription: `Disaster Recovery Simulation verified for ${businessIdentity.name}`,
+      targetDescription: `Disaster Recovery Simulation verified for ${businessIdentity?.name || 'DMi Store'}`,
       notes: 'All 5 recovery steps completed with 0 data loss',
     });
 
@@ -2607,7 +2678,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       addAuditLog({
         userId: currentEmployee.id,
-        userName: currentEmployee.name,
+        userName: currentEmployee?.name || 'Staff',
         userRole: currentEmployee.role,
         branchId: activeBranchId,
         action: 'disaster_recovery_import',
@@ -2809,21 +2880,26 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const timestamp = new Date().toISOString();
     const receiptNumber = `INV-${String(sales.length + 452).padStart(5, '0')}`;
 
-    const items = cart.map((item) => ({
-      productId: item.product.id,
-      productName: item.product.name,
-      quantity: item.quantity,
-      costPrice: item.product.costPrice,
-      sellingPrice: item.product.sellingPrice,
-      discount: item.discount,
-      total: (item.product.sellingPrice - item.discount) * item.quantity,
-    }));
+    const items = cart.map((item) => {
+      const price = item?.product?.sellingPrice ?? 0;
+      const discount = item?.discount ?? 0;
+      const qty = item?.quantity ?? 1;
+      return {
+        productId: item?.product?.id || 'prod-item',
+        productName: item?.product?.name || 'Product',
+        quantity: qty,
+        costPrice: item?.product?.costPrice ?? 0,
+        sellingPrice: price,
+        discount: discount,
+        total: Math.max(0, (price - discount) * qty),
+      };
+    });
 
     const effectiveBranch = activeBranch || branches.find((b) => b.id === activeBranchId) || branches[0];
     const branchId = effectiveBranch?.id || 'branch-1';
-    const branchName = effectiveBranch?.name || storeProfile.name;
-    const storeTill = effectiveBranch?.tillNumber || storeProfile.tillNumber;
-    const cashierName = currentEmployee?.name || effectiveBranch?.cashierName || storeProfile.cashierName;
+    const branchName = effectiveBranch?.name || storeProfile?.name || 'Main Branch';
+    const storeTill = effectiveBranch?.tillNumber || storeProfile?.tillNumber || '';
+    const cashierName = currentEmployee?.name || effectiveBranch?.cashierName || storeProfile?.cashierName || 'Cashier';
     const cashierId = currentEmployee?.id || 'emp-2';
 
     const newSale: Sale = {
@@ -2847,13 +2923,13 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       synced: isOnline,
       branchId,
       branchName,
-      storeName: storeProfile.name,
-      storeLocation: effectiveBranch?.location || storeProfile.location,
-      storePhone: effectiveBranch?.phone || storeProfile.phone,
+      storeName: storeProfile?.name || 'DMi Store',
+      storeLocation: effectiveBranch?.location || storeProfile?.location || 'Nairobi',
+      storePhone: effectiveBranch?.phone || storeProfile?.phone || '',
       storeTill,
-      storePaybill: effectiveBranch?.paybillNumber || storeProfile.paybillNumber,
-      storeAccount: effectiveBranch?.accountNumber || storeProfile.accountNumber,
-      taxPin: storeProfile.taxPin,
+      storePaybill: effectiveBranch?.paybillNumber || storeProfile?.paybillNumber || '',
+      storeAccount: effectiveBranch?.accountNumber || storeProfile?.accountNumber || '',
+      taxPin: storeProfile?.taxPin || '',
       cashierId,
       cashierName,
       status: 'completed',
@@ -2868,7 +2944,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (cartTotals.totalDiscount > 0) {
       addAuditLog({
         userId: currentEmployee.id,
-        userName: currentEmployee.name,
+        userName: currentEmployee?.name || 'Staff',
         userRole: currentEmployee.role,
         branchId,
         branchName,
@@ -3347,7 +3423,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const bestSeller = products[0]?.name || 'N/A';
     const slowest = slowMovingProducts[0]?.product.name || 'N/A';
 
-    return `*Today's Business Summary - ${storeProfile.name}*
+    return `*Today's Business Summary - ${storeProfile?.name || 'DMi Store'}*
 📅 ${new Date('2026-09-07').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
 
 💰 *Financials Today:*
@@ -3374,7 +3450,7 @@ _Generated via DMi Business OS_`;
       ? new Date(customer.creditDueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
       : 'end of month';
 
-    return `Habari ${customer.name.split(' ')[0]}, this is a friendly reminder from ${storeProfile.name}. Your current outstanding balance is KSh ${customer.outstandingDebt.toLocaleString()} (due ${formattedDue}). Kindly settle via M-Pesa Buy Goods Till: ${storeProfile.tillNumber} or Paybill ${storeProfile.paybillNumber} (Acc: ${storeProfile.accountNumber}). Asante sana for your partnership!`;
+    return `Habari ${(customer?.name || 'Customer').split(' ')[0]}, this is a friendly reminder from ${storeProfile?.name || 'DMi Store'}. Your current outstanding balance is KSh ${customer.outstandingDebt.toLocaleString()} (due ${formattedDue}). Kindly settle via M-Pesa Buy Goods Till: ${storeProfile.tillNumber} or Paybill ${storeProfile.paybillNumber} (Acc: ${storeProfile.accountNumber}). Asante sana for your partnership!`;
   };
 
   // === VERSION 2: MULTI-BRANCH HANDLERS & TENANT/BRANCH ISOLATION ===
@@ -3679,7 +3755,7 @@ _Generated via DMi Business OS_`;
         notes: `Driver: ${driverName || dispatchedT.driverName || 'Courier'} (${vehicleReg || dispatchedT.vehicleReg || 'N/A'})`,
         relatedEntityId: dispatchedT.id,
         userId: currentEmployee.id,
-        userName: currentEmployee.name,
+        userName: currentEmployee?.name || 'Staff',
         userRole: currentEmployee.role,
       });
     }
@@ -3700,7 +3776,7 @@ _Generated via DMi Business OS_`;
     setDispatchOrders((prev) =>
       prev.map((d) =>
         d.transferId === id || d.items.some((i) => i.productId === transfer.productId && d.destBranchId === transfer.destBranchId && d.status === 'dispatched')
-          ? { ...d, status: 'received', receivedBy: currentEmployee.name, receivedAt: new Date().toISOString() }
+          ? { ...d, status: 'received', receivedBy: currentEmployee?.name || 'Staff', receivedAt: new Date().toISOString() }
           : d
       )
     );
@@ -3729,10 +3805,10 @@ _Generated via DMi Business OS_`;
       action: 'stock_adjustment',
       targetDescription: `Stock Transfer Received at ${transfer.destBranchName}: ${transfer.transferNumber}`,
       newValue: `+${transfer.quantity} ${transfer.unit} ${transfer.productName} stocked into ${transfer.destBranchName}`,
-      notes: `Received and verified by ${currentEmployee.name} (${currentEmployee.role}).`,
+      notes: `Received and verified by ${currentEmployee?.name || 'Staff'} (${currentEmployee.role}).`,
       relatedEntityId: transfer.id,
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
     });
   };
@@ -3767,7 +3843,7 @@ _Generated via DMi Business OS_`;
     const nowStr = new Date().toISOString();
     const todayDate = nowStr.split('T')[0];
 
-    const canAuthorize = currentEmployee.id === 'emp-owner' || currentEmployee.canAuthorizeDispatch;
+    const canAuthorize = currentEmployee?.id === 'emp-owner' || Boolean(currentEmployee?.canAuthorizeDispatch);
 
     if (canAuthorize) {
       // Owner or Authorized manager dispatching live
@@ -3789,8 +3865,8 @@ _Generated via DMi Business OS_`;
         driverName: 'Juma Kamau (Canter Freight)',
         vehicleReg: 'KDA 482J',
         notes: `Live Inter-Branch Transfer: ${qty} ${prod.unit} ${prod.name} en route to ${dstBranch.name}`,
-        requestedBy: currentEmployee.name,
-        approvedBy: `${currentEmployee.name} (Authorized Go-Ahead)`,
+        requestedBy: currentEmployee?.name || 'Staff',
+        approvedBy: `${currentEmployee?.name || 'Staff'} (Authorized Go-Ahead)`,
         approvedDate: nowStr,
       };
 
@@ -3814,11 +3890,11 @@ _Generated via DMi Business OS_`;
         ],
         status: 'dispatched',
         urgency: 'urgent',
-        orderedBy: currentEmployee.name,
+        orderedBy: currentEmployee?.name || 'Staff',
         orderedById: currentEmployee.id,
         orderedByRole: currentEmployee.role,
         orderedAt: nowStr,
-        authorizedBy: `${currentEmployee.name} (Owner Authorized)`,
+        authorizedBy: `${currentEmployee?.name || 'Staff'} (Owner Authorized)`,
         authorizedById: currentEmployee.id,
         authorizedAt: nowStr,
         driverName: 'Juma Kamau (Canter Freight)',
@@ -3855,7 +3931,7 @@ _Generated via DMi Business OS_`;
         notes: `Vehicle KDA 482J (Driver: Juma Kamau). Live inbound alert active for ${dstBranch.name}.`,
         relatedEntityId: liveTransfer.id,
         userId: currentEmployee.id,
-        userName: currentEmployee.name,
+        userName: currentEmployee?.name || 'Staff',
         userRole: currentEmployee.role,
       });
 
@@ -3876,8 +3952,8 @@ _Generated via DMi Business OS_`;
         unit: prod.unit,
         status: 'pending',
         requestDate: todayDate,
-        notes: `Transfer requested by ${currentEmployee.name}. Awaiting owner dispatch authorization.`,
-        requestedBy: currentEmployee.name,
+        notes: `Transfer requested by ${currentEmployee?.name || 'Staff'}. Awaiting owner dispatch authorization.`,
+        requestedBy: currentEmployee?.name || 'Staff',
       };
 
       const pendingDispatch: DispatchOrder = {
@@ -3900,7 +3976,7 @@ _Generated via DMi Business OS_`;
         ],
         status: 'pending_approval',
         urgency: 'urgent',
-        orderedBy: currentEmployee.name,
+        orderedBy: currentEmployee?.name || 'Staff',
         orderedById: currentEmployee.id,
         orderedByRole: currentEmployee.role,
         orderedAt: nowStr,
@@ -3914,11 +3990,11 @@ _Generated via DMi Business OS_`;
         action: 'transfer_request',
         targetDescription: `Dispatch Requisition Created: ${dispatchNum}`,
         newValue: `Pending authorization by David Migichi (Owner)`,
-        notes: `Initiated by ${currentEmployee.name} (${currentEmployee.role}). Stock held at ${srcBranch.name}.`,
+        notes: `Initiated by ${currentEmployee?.name || 'Staff'} (${currentEmployee?.role || 'staff'}). Stock held at ${srcBranch?.name || 'Main Branch'}.`,
         relatedEntityId: pendingDispatch.id,
-        userId: currentEmployee.id,
-        userName: currentEmployee.name,
-        userRole: currentEmployee.role,
+        userId: currentEmployee?.id || 'emp-system',
+        userName: currentEmployee?.name || 'Staff',
+        userRole: currentEmployee?.role || 'staff',
       });
 
       return pendingTransfer;
@@ -3970,7 +4046,10 @@ _Generated via DMi Business OS_`;
     const order = dispatchOrders.find((d) => d.id === dispatchId);
     if (!order) return;
 
-    const authorizer = employees.find((e) => e.id === authorizerId) || currentEmployee;
+    const authorizer = employees.find((e) => e.id === authorizerId) || currentEmployee || employees[0] || initialEmployees[0];
+    const authorizerName = authorizer?.name || 'Administrator';
+    const authorizerRole = authorizer?.role || 'owner';
+    const authorizerIdSafe = authorizer?.id || 'emp-system';
     const nowStr = new Date().toISOString();
     const todayDate = nowStr.split('T')[0];
 
@@ -3998,7 +4077,7 @@ _Generated via DMi Business OS_`;
       vehicleReg: details.vehicleReg,
       notes: details.departureNotes || order.notes,
       requestedBy: `${order.orderedBy} (${order.orderedByRole})`,
-      approvedBy: `${authorizer.name} (${authorizer.role})`,
+      approvedBy: `${authorizerName} (${authorizerRole})`,
       approvedDate: nowStr,
     };
 
@@ -4010,8 +4089,8 @@ _Generated via DMi Business OS_`;
           ? {
               ...d,
               status: 'dispatched',
-              authorizedBy: authorizer.name,
-              authorizedById: authorizer.id,
+              authorizedBy: authorizerName,
+              authorizedById: authorizerIdSafe,
               authorizedAt: nowStr,
               driverName: details.driverName,
               driverPhone: details.driverPhone,
@@ -4045,12 +4124,12 @@ _Generated via DMi Business OS_`;
     addAuditLog({
       action: 'stock_adjustment',
       targetDescription: `Dispatch Go-Ahead Granted: ${order.dispatchNumber}`,
-      newValue: `Authorized by ${authorizer.name} (${authorizer.role}). Released via ${details.vehicleReg} (Driver: ${details.driverName})`,
+      newValue: `Authorized by ${authorizerName} (${authorizerRole}). Released via ${details.vehicleReg} (Driver: ${details.driverName})`,
       notes: `Security Seal #${details.securitySealNumber || 'N/A'}. En route from ${order.sourceBranchName} to ${order.destBranchName}. Inbound alert active on receiving outlet.`,
       relatedEntityId: order.id,
-      userId: authorizer.id,
-      userName: authorizer.name,
-      userRole: authorizer.role,
+      userId: authorizerIdSafe,
+      userName: authorizerName,
+      userRole: authorizerRole,
     });
   };
 
@@ -4109,7 +4188,7 @@ _Generated via DMi Business OS_`;
       notes: `Stock confirmed and credited to ${order.destBranchName} inventory.`,
       relatedEntityId: order.id,
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
     });
   };
@@ -4393,7 +4472,7 @@ _Generated via DMi Business OS_`;
       .join('\n');
 
     return template
-      .replace('{storeName}', sale.storeName || storeProfile.name)
+      .replace('{storeName}', sale.storeName || storeProfile?.name || 'DMi Store')
       .replace('{storeLocation}', sale.storeLocation || storeProfile.location)
       .replace('{storePhone}', sale.storePhone || storeProfile.phone)
       .replace('{tillNumber}', sale.storeTill || storeProfile.tillNumber)
@@ -4428,12 +4507,12 @@ _Generated via DMi Business OS_`;
       : 'End of Month';
 
     const text = template
-      .replace('{customerName}', customer.name)
-      .replace('{storeName}', storeProfile.name)
-      .replace('{storeLocation}', storeProfile.location)
-      .replace('{balance}', customer.outstandingDebt.toLocaleString())
+      .replace('{customerName}', customer?.name || 'Valued Customer')
+      .replace('{storeName}', storeProfile?.name || 'DMi Store')
+      .replace('{storeLocation}', storeProfile?.location || 'Nairobi')
+      .replace('{balance}', (customer?.outstandingDebt || 0).toLocaleString())
       .replace('{dueDate}', formattedDue)
-      .replace('{tillNumber}', storeProfile.tillNumber);
+      .replace('{tillNumber}', storeProfile?.tillNumber || '000000');
 
     const cleanPhone = customer.phone.replace(/[^0-9]/g, '');
     const standardPhone = cleanPhone.startsWith('0') ? '254' + cleanPhone.slice(1) : cleanPhone;
@@ -4443,16 +4522,16 @@ _Generated via DMi Business OS_`;
 
   const sendSupplierOrderWhatsApp = (supplier: Supplier, itemsSummary: string, branchName?: string) => {
     const template = whatsAppTemplates.find((t) => t.category === 'supplier_po')?.content || initialWhatsAppTemplates[3].content;
-    const targetBranch = activeBranch || branches[0];
+    const targetBranch = activeBranch || branches[0] || initialBranches[0];
     const text = template
-      .replace('{supplierName}', supplier.name)
-      .replace('{contactPerson}', supplier.contactPerson || 'Sales Team')
-      .replace('{storeName}', storeProfile.name)
-      .replace('{deliveryBranch}', branchName || targetBranch.name)
-      .replace('{deliveryLocation}', targetBranch.location)
+      .replace('{supplierName}', supplier?.name || 'Supplier')
+      .replace('{contactPerson}', supplier?.contactPerson || 'Sales Team')
+      .replace('{storeName}', storeProfile?.name || 'DMi Store')
+      .replace('{deliveryBranch}', branchName || targetBranch?.name || 'Main Branch')
+      .replace('{deliveryLocation}', targetBranch?.location || 'Store Location')
       .replace('{orderItems}', itemsSummary)
-      .replace('{paymentTerms}', supplier.paymentTerms)
-      .replace('{branchPhone}', targetBranch.phone);
+      .replace('{paymentTerms}', supplier?.paymentTerms || 'On Delivery')
+      .replace('{branchPhone}', targetBranch?.phone || '');
 
     const cleanPhone = supplier.phone.replace(/[^0-9]/g, '');
     const standardPhone = cleanPhone.startsWith('0') ? '254' + cleanPhone.slice(1) : cleanPhone;
@@ -4543,7 +4622,7 @@ _Generated via DMi Business OS_`;
     );
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       action: 'employee_status',
       targetDescription: `Updated details for staff member ID: ${id}`,
@@ -4569,7 +4648,7 @@ _Generated via DMi Business OS_`;
     setEmployees((prev) => [...prev, employee]);
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       action: 'employee_status',
       targetDescription: `Created staff account: ${newEmp.name} (${newEmp.role.toUpperCase()}) at ${newEmp.branchName}`,
@@ -4584,7 +4663,7 @@ _Generated via DMi Business OS_`;
           const newStatus = e.status === 'active' ? 'disabled' : 'active';
           addAuditLog({
             userId: currentEmployee.id,
-            userName: currentEmployee.name,
+            userName: currentEmployee?.name || 'Staff',
             userRole: currentEmployee.role,
             action: 'employee_status',
             targetDescription: `Toggled account status for ${e.name}`,
@@ -4609,7 +4688,7 @@ _Generated via DMi Business OS_`;
           };
           addAuditLog({
             userId: currentEmployee.id,
-            userName: currentEmployee.name,
+            userName: currentEmployee?.name || 'Staff',
             userRole: currentEmployee.role,
             action: 'permission_change',
             targetDescription: `Modified permissions for ${e.name} (${e.role})`,
@@ -4876,12 +4955,12 @@ _Generated via DMi Business OS_`;
   const logoutSession = () => {
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: currentEmployee.branchId,
       branchName: currentEmployee.branchName,
       action: 'permission_change',
-      targetDescription: `Staff terminal session locked / signed out by ${currentEmployee.name}`,
+      targetDescription: `Staff terminal session locked / signed out by ${currentEmployee?.name || 'Staff'}`,
     });
     setIsDeveloperAuthenticated(false);
     localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}dev_authenticated`);
@@ -4893,10 +4972,10 @@ _Generated via DMi Business OS_`;
     data: NewStaffUserPayload,
     registeringBy?: Employee
   ): { success: boolean; message: string; employee?: Employee } => {
-    const registrar = registeringBy || currentEmployee;
+    const registrar = registeringBy || currentEmployee || employees.find(e => e.role === 'owner' || e.role === 'manager') || initialEmployees[0];
 
     // Authorization check: Only Owner and Managers can register
-    if (registrar.role !== 'owner' && registrar.role !== 'manager') {
+    if (!registrar || (registrar.role !== 'owner' && registrar.role !== 'manager')) {
       return {
         success: false,
         message: 'Authorization denied: Only Business Owners and Store Managers are permitted to register new staff accounts.',
@@ -5025,11 +5104,11 @@ _Generated via DMi Business OS_`;
     setEmployees((prev) => [...prev, newStaff]);
 
     addAuditLog({
-      userId: registrar.id,
-      userName: registrar.name,
-      userRole: registrar.role,
-      branchId: registrar.branchId,
-      branchName: registrar.branchName,
+      userId: registrar?.id || 'emp-system',
+      userName: registrar?.name || 'Administrator',
+      userRole: registrar?.role || 'owner',
+      branchId: registrar?.branchId || 'main',
+      branchName: registrar?.branchName || branchName,
       action: 'employee_status',
       targetDescription: `Registered new staff member: ${newStaff.name} (${newStaff.role.toUpperCase()}) for ${branchName}. 2FA: ${newStaff.twoFactorEnabled ? 'Enabled' : 'Disabled'}. Safaricom Phone: ${newStaff.phone}`,
       newValue: `Role: ${newStaff.role}, Username: ${newStaff.username}`,
@@ -5193,7 +5272,7 @@ _Generated via DMi Business OS_`;
       const updated = { ...prev, ...limits };
       addAuditLog({
         userId: currentEmployee.id,
-        userName: currentEmployee.name,
+        userName: currentEmployee?.name || 'Staff',
         userRole: currentEmployee.role,
         action: 'security_limit_change',
         targetDescription: `Updated business transaction security thresholds`,
@@ -5224,7 +5303,7 @@ _Generated via DMi Business OS_`;
           ? {
               ...s,
               status: 'voided',
-              voidedBy: currentEmployee.name,
+              voidedBy: currentEmployee?.name || 'Staff',
               voidApprovedBy: approvedBy,
               voidReason: reason,
               voidedAt: now,
@@ -5257,7 +5336,7 @@ _Generated via DMi Business OS_`;
     // Audit trail logging
     addAuditLog({
       userId: currentEmployee.id,
-      userName: currentEmployee.name,
+      userName: currentEmployee?.name || 'Staff',
       userRole: currentEmployee.role,
       branchId: saleToVoid.branchId,
       branchName: saleToVoid.branchName,
@@ -5418,7 +5497,7 @@ _Generated via DMi Business OS_`;
       registeredAt: nowIso,
       activationCode: 'DMI-TERM-01',
       isCurrentDevice: true,
-      currentStaffName: ownerEmp.name,
+      currentStaffName: ownerEmp?.name || newBizIdentity.ownerName || 'David Migichi',
       terminalNumber: 'TERM-01',
     };
 

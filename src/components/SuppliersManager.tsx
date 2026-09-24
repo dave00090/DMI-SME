@@ -508,7 +508,7 @@ export const SuppliersManager: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-bold text-base text-slate-900">Record Supplier Payment</h3>
-                <p className="text-xs text-slate-500">{selectedSupForPay.name}</p>
+                <p className="text-xs text-slate-500">{selectedSupForPay?.name || 'Supplier'}</p>
               </div>
               <button
                 onClick={() => setIsPayModalOpen(false)}
@@ -914,13 +914,13 @@ export const SuppliersManager: React.FC = () => {
             </div>
 
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
-              <div className="font-semibold text-slate-900">{supplierToDelete.name}</div>
+              <div className="font-semibold text-slate-900">{supplierToDelete?.name || 'Supplier'}</div>
               <div className="text-slate-500 text-[11px]">
-                {supplierToDelete.category} • {supplierToDelete.phone}
+                {supplierToDelete?.category} • {supplierToDelete?.phone}
               </div>
-              {supplierToDelete.balanceOwed > 0 && (
+              {(supplierToDelete?.balanceOwed || 0) > 0 && (
                 <div className="text-red-600 font-bold text-[11px] pt-1">
-                  ⚠️ Outstanding Balance: KSh {supplierToDelete.balanceOwed.toLocaleString()}
+                  ⚠️ Outstanding Balance: KSh {(supplierToDelete?.balanceOwed || 0).toLocaleString()}
                 </div>
               )}
             </div>

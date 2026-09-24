@@ -24,7 +24,7 @@ export const FloatingSalesBookControl: React.FC<FloatingSalesBookControlProps> =
   const [justOpenedToast, setJustOpenedToast] = useState(false);
 
   const handleQuickOpen = () => {
-    startTodaySales(openingFloat, currentEmployee.name);
+    startTodaySales(openingFloat, currentEmployee?.name || 'Attendant');
     setActiveTab('pos');
     if (onNavigateToSales) onNavigateToSales();
     setIsOpenPromptModal(false);
@@ -71,7 +71,7 @@ export const FloatingSalesBookControl: React.FC<FloatingSalesBookControlProps> =
             <div className="space-y-1.5 text-slate-300">
               <div className="flex justify-between">
                 <span>Opened By:</span>
-                <strong className="text-white">{currentSalesBook?.openedBy || currentEmployee.name}</strong>
+                <strong className="text-white">{currentSalesBook?.openedBy || currentEmployee?.name || 'Attendant'}</strong>
               </div>
               <div className="flex justify-between">
                 <span>Opening Float:</span>
@@ -177,7 +177,7 @@ export const FloatingSalesBookControl: React.FC<FloatingSalesBookControlProps> =
                 <input
                   type="text"
                   disabled
-                  value={currentEmployee.name}
+                  value={currentEmployee?.name || ''}
                   className="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-700 font-medium cursor-not-allowed"
                 />
               </div>

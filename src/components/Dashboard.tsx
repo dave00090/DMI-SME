@@ -526,7 +526,7 @@ export const Dashboard: React.FC = () => {
                     ) : (
                       <Store className="w-3.5 h-3.5 opacity-80" />
                     )}
-                    <span>{b.code} • {b.name.split(' ')[0]}</span>
+                    <span>{b.code} • {b?.name ? b.name.split(' ')[0] : (b?.code || 'Branch')}</span>
                     {b.isWarehouse && (
                       <span className={`text-[9px] px-1 py-0.2 rounded ${isSelected ? 'bg-blue-700 text-blue-100' : 'bg-slate-200 text-slate-600'}`}>
                         Yard
@@ -779,25 +779,25 @@ export const Dashboard: React.FC = () => {
                 <span className="text-xs text-slate-300 font-mono font-bold">Code: {currentBranch.code}</span>
                 <span className="text-slate-400 text-xs">•</span>
                 <span className="text-xs text-slate-300">
-                  Till / Paybill: <strong className="text-white font-mono">{currentBranch.tillNumber || currentBranch.paybillNumber}</strong>
+                  Till / Paybill: <strong className="text-white font-mono">{currentBranch?.tillNumber || currentBranch?.paybillNumber || 'N/A'}</strong>
                 </span>
               </div>
 
               <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>{currentBranch.name}</span>
+                <span>{currentBranch?.name || 'Assigned Branch'}</span>
                 <span className="text-xs font-normal text-slate-300 font-sans hidden sm:inline">
-                  ({currentBranch.location})
+                  ({currentBranch?.location || 'Store Location'})
                 </span>
               </h2>
 
               <p className="text-xs text-slate-300 flex flex-wrap items-center gap-3 pt-1">
                 <span>
-                  Store Manager / Cashier: <strong className="text-white">{currentBranch.cashierName}</strong>
+                  Store Manager / Cashier: <strong className="text-white">{currentBranch?.cashierName || 'Branch Manager'}</strong>
                 </span>
                 <span>•</span>
                 <span>
-                  Contact: <strong className="text-white font-mono">{currentBranch.phone}</strong>
+                  Contact: <strong className="text-white font-mono">{currentBranch?.phone || 'N/A'}</strong>
                 </span>
                 <span>•</span>
                 <span>
@@ -977,29 +977,29 @@ export const Dashboard: React.FC = () => {
                       : 0;
 
                   return (
-                    <tr key={item.branch.id} className="hover:bg-slate-50/80 transition">
+                    <tr key={item.branch?.id || Math.random()} className="hover:bg-slate-50/80 transition">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div
                             className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                              item.branch.isWarehouse
+                              item.branch?.isWarehouse
                                 ? 'bg-amber-100 text-amber-800'
                                 : 'bg-blue-100 text-blue-800'
                             }`}
                           >
-                            {item.branch.code}
+                            {item.branch?.code || 'BR'}
                           </div>
                           <div>
                             <div className="font-semibold text-slate-900 flex items-center gap-1.5">
-                              <span>{item.branch.name}</span>
-                              {item.branch.isWarehouse && (
+                              <span>{item.branch?.name || 'Branch'}</span>
+                              {item.branch?.isWarehouse && (
                                 <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200">
                                   Yard
                                 </span>
                               )}
                             </div>
                             <div className="text-[11px] text-slate-500">
-                              Manager: {item.branch.cashierName} • Till: {item.branch.tillNumber || item.branch.paybillNumber}
+                              Manager: {item.branch?.cashierName || 'Attendant'} • Till: {item.branch?.tillNumber || item.branch?.paybillNumber || 'N/A'}
                             </div>
                           </div>
                         </div>
@@ -1057,9 +1057,9 @@ export const Dashboard: React.FC = () => {
 
                       <td className="px-4 py-3 text-center">
                         <button
-                          onClick={() => setActiveBranchId(item.branch.id)}
+                          onClick={() => item.branch?.id && setActiveBranchId(item.branch.id)}
                           className="px-2.5 py-1 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer mx-auto"
-                          title={`Drill down into ${item.branch.name}`}
+                          title={`Drill down into ${item.branch?.name || 'Branch'}`}
                         >
                           <Eye className="w-3 h-3" />
                           <span>View Branch</span>
@@ -1140,9 +1140,9 @@ export const Dashboard: React.FC = () => {
                 return (
                   <tr key={customer.id} className="hover:bg-slate-50 transition">
                     <td className="px-4 py-3 font-medium">
-                      <div className="font-semibold text-slate-900">{customer.name}</div>
+                      <div className="font-semibold text-slate-900">{customer?.name || 'Customer'}</div>
                       <div className="text-[11px] text-slate-500">
-                        Limit: KSh {(customer.creditLimit || 0).toLocaleString()}
+                        Limit: KSh {(customer?.creditLimit || 0).toLocaleString()}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right font-bold font-mono text-slate-900">
@@ -1343,7 +1343,7 @@ export const Dashboard: React.FC = () => {
                 >
                   {branches.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {b.name} ({b.code}) {b.isWarehouse ? '• Main Depot' : ''}
+                      {b?.name || 'Branch'} ({b?.code || ''}) {b?.isWarehouse ? '• Main Depot' : ''}
                     </option>
                   ))}
                 </select>
@@ -1361,7 +1361,7 @@ export const Dashboard: React.FC = () => {
                 >
                   {branches.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {b.name} ({b.code})
+                      {b?.name || 'Branch'} ({b?.code || ''})
                     </option>
                   ))}
                 </select>
@@ -1378,7 +1378,7 @@ export const Dashboard: React.FC = () => {
                   >
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name} ({p.sku})
+                        {p?.name || 'Item'} ({p?.sku || ''})
                       </option>
                     ))}
                   </select>
