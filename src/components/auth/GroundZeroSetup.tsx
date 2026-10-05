@@ -14,9 +14,12 @@ import {
   AlertCircle,
   CheckCircle2,
   Tag,
+  Check,
+  Store,
 } from 'lucide-react';
 import { useBusiness } from '../../context/BusinessContext';
 import { INDUSTRY_TYPES, getIndustryDefinition } from '../../data/industryCategories';
+import { SubscriptionTier } from '../../types';
 
 interface GroundZeroSetupProps {
   onCancel?: () => void;
@@ -44,6 +47,7 @@ export const GroundZeroSetup: React.FC<GroundZeroSetupProps> = ({
   const [username, setUsername] = useState('david');
   const [password, setPassword] = useState('admin123');
   const [pin, setPin] = useState('1234');
+  const [packageTier, setPackageTier] = useState<SubscriptionTier>('Starter');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,6 +93,7 @@ export const GroundZeroSetup: React.FC<GroundZeroSetupProps> = ({
         username,
         password,
         pin,
+        packageTier,
       });
 
       if (res && res.success) {
@@ -382,6 +387,141 @@ export const GroundZeroSetup: React.FC<GroundZeroSetupProps> = ({
                   placeholder="1234"
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs font-mono font-medium text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition"
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Subscription Package Selection */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+              <Store className="w-3.5 h-3.5" />
+              <span>3. Select Operating Package</span>
+            </div>
+            <span className="text-[11px] text-emerald-400 font-medium">
+              💡 Most clients have just 1 shop
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Starter Option */}
+            <div
+              onClick={() => setPackageTier('Starter')}
+              className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                packageTier === 'Starter'
+                  ? 'bg-slate-950/80 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
+                  : 'bg-slate-950/40 border-slate-800 hover:border-slate-700'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    1 Shop (Recommended)
+                  </span>
+                  <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                    packageTier === 'Starter' ? 'bg-emerald-500 border-emerald-500 text-slate-950' : 'border-slate-600'
+                  }`}>
+                    {packageTier === 'Starter' && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <div className="font-bold text-white text-sm">DMi Starter</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">
+                  Single-store retailers & kiosks.
+                </div>
+
+                <div className="mt-3 text-sm font-black text-white font-mono">
+                  KES 1,000 <span className="text-[10px] text-slate-400 font-normal">/mo</span>
+                </div>
+
+                <div className="mt-2.5 pt-2 border-t border-slate-800/80 space-y-1.5 text-[10px] text-slate-300">
+                  <div>• 1 Single Shop (HQ Outlet)</div>
+                  <div>• 2 POS Device Terminals</div>
+                  <div>• Fast Offline-First Sales POS</div>
+                  <div>• M-Pesa STK & Daily Sales Book</div>
+                  <div className="text-rose-400 font-bold bg-rose-500/10 px-1.5 py-1 rounded border border-rose-500/20">
+                    ❌ No access to "Multi Branch v2", "IBT", or "Dispatch" tabs
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Business Option */}
+            <div
+              onClick={() => setPackageTier('Business')}
+              className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                packageTier === 'Business'
+                  ? 'bg-slate-950/80 border-blue-500 ring-2 ring-blue-500/20 shadow-md'
+                  : 'bg-slate-950/40 border-slate-800 hover:border-slate-700'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                    Multi-Shop
+                  </span>
+                  <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                    packageTier === 'Business' ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-600'
+                  }`}>
+                    {packageTier === 'Business' && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <div className="font-bold text-white text-sm">DMi Business</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">
+                  Expanding 2 to 3 branches.
+                </div>
+
+                <div className="mt-3 text-sm font-black text-white font-mono">
+                  KES 2,000 <span className="text-[10px] text-slate-400 font-normal">/mo</span>
+                </div>
+
+                <div className="mt-2.5 pt-2 border-t border-slate-800/80 space-y-1 text-[10px] text-slate-300">
+                  <div>• Up to 3 Branches</div>
+                  <div>• Up to 8 POS Devices</div>
+                  <div className="text-emerald-400 font-medium">✅ Multi-Branch v2 tab</div>
+                  <div className="text-emerald-400 font-medium">✅ Inter-Branch IBT transfers</div>
+                  <div className="text-emerald-400 font-medium">✅ Central Dispatch Hub</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Enterprise Option */}
+            <div
+              onClick={() => setPackageTier('Enterprise')}
+              className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                packageTier === 'Enterprise'
+                  ? 'bg-slate-950/80 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
+                  : 'bg-slate-950/40 border-slate-800 hover:border-slate-700'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    Enterprise Chain
+                  </span>
+                  <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                    packageTier === 'Enterprise' ? 'bg-indigo-500 border-indigo-500 text-white' : 'border-slate-600'
+                  }`}>
+                    {packageTier === 'Enterprise' && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <div className="font-bold text-white text-sm">DMi Enterprise</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">
+                  Large chains & depots.
+                </div>
+
+                <div className="mt-3 text-sm font-black text-white font-mono">
+                  KES 10,000 <span className="text-[10px] text-slate-400 font-normal">/mo</span>
+                </div>
+
+                <div className="mt-2.5 pt-2 border-t border-slate-800/80 space-y-1 text-[10px] text-slate-300">
+                  <div>• Unlimited Branches</div>
+                  <div>• Unlimited Devices & Fleet</div>
+                  <div className="text-emerald-400 font-medium">✅ Complete Logistics Matrix</div>
+                </div>
               </div>
             </div>
           </div>

@@ -43,6 +43,7 @@ import { SupabaseAuthModal } from './SupabaseAuthModal';
 import { StaffRegisterModal } from './auth/StaffRegisterModal';
 import { ResetSystemModal } from './ResetSystemModal';
 import { DeviceUnlockModal } from './DeviceUnlockModal';
+import { PackageSelectionModal } from './auth/PackageSelectionModal';
 
 interface TopHeaderProps {
   onMenuClick: () => void;
@@ -84,6 +85,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
   const [isSupabaseAuthOpen, setIsSupabaseAuthOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
+  const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
+
+  const isStarterPlan = (subscription?.tier || 'Starter').toLowerCase() === 'starter';
 
   // Date formatting for top bar
   const formattedDate = new Intl.DateTimeFormat('en-KE', {
@@ -132,7 +136,16 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
 
             {/* Version 2 Multi-Branch Switcher with Strict Branch Access Control */}
             <div className="relative inline-flex items-center shrink-0">
-              {canSwitchBranches ? (
+              {isStarterPlan ? (
+                <div
+                  className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold rounded-lg px-2.5 py-1 flex items-center gap-1.5"
+                  title="DMi Starter Package - Dedicated Single Shop Outlet"
+                >
+                  <Store className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>📍 {activeBranch?.name || storeProfile?.name || 'Main Shop HQ'}</span>
+                  <span className="text-[10px] bg-emerald-200/70 text-emerald-900 font-mono px-1 rounded font-bold">1 Shop</span>
+                </div>
+              ) : canSwitchBranches ? (
                 <>
                   <select
                     value={activeBranchId || 'all'}
@@ -161,6 +174,16 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
               )}
             </div>
 
+            {/* Operating Package Badge & Quick Switcher */}
+            <button
+              onClick={() => setIsPackageModalOpen(true)}
+              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition cursor-pointer shrink-0"
+              title="Click to view or switch your DMi Operating Package"
+            >
+              <Store className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{subscription?.tier || 'Starter'} Plan ({isStarterPlan ? '1 Shop' : 'Multi-Shop'})</span>
+            </button>
+
             <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200 shrink-0 whitespace-nowrap">
               Till: {activeBranch?.tillNumber || storeProfile?.tillNumber || 'N/A'}
             </span>
@@ -177,8 +200,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
             )}
           </div>
           <p className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap mt-0.5">
-            <span>Outlet: <strong className="text-slate-700">{activeBranch?.name || 'All Locations'}</strong></span>
-            <span className="text-slate-300">•</span>
             <span className="flex items-center gap-1">
               <span>Logged In: </span>
               <strong className="text-slate-800 font-semibold">{currentEmployee?.name || 'Staff'}</strong>
@@ -321,6 +342,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuClick }) => {
         <DeviceUnlockModal
           isOpen={isUnlockModalOpen}
           onClose={() => setIsUnlockModalOpen(false)}
+        />
+      )}
+
+      {isPackageModalOpen && (
+        <PackageSelectionModal
+          isOpen={isPackageModalOpen}
+          onClose={() => setIsPackageModalOpen(false)}
+          canDismiss={true}
         />
       )}
     </header>

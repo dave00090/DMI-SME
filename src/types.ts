@@ -360,6 +360,8 @@ export type AuditActionType =
   | 'sync_completed'
   | 'business_profile_update'
   | 'subscription_upgrade'
+  | 'subscription_payment_confirmed'
+  | 'grace_period_granted'
   | 'device_switch'
   | 'device_code_generated'
   | 'device_activated'
@@ -634,6 +636,7 @@ export interface BusinessSubscription {
   gracePeriodDays?: number;
   gracePeriodEndsAt?: string;
   planCode?: string;
+  packageSelected?: boolean;
 }
 
 export type DeviceHardwareType = 'desktop_pc' | 'laptop' | 'tablet' | 'mobile' | 'phone';

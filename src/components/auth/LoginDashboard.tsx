@@ -24,6 +24,7 @@ import {
   Mail,
   Phone,
   Send,
+  Store,
 } from 'lucide-react';
 import { useBusiness } from '../../context/BusinessContext';
 import { Employee, UserRole } from '../../types';
@@ -31,6 +32,7 @@ import { ForgotPasswordModal } from './ForgotPasswordModal';
 import { StaffRegisterModal } from './StaffRegisterModal';
 import { GroundZeroSetup } from './GroundZeroSetup';
 import { ResetSystemModal } from '../ResetSystemModal';
+import { PackageSelectionModal } from './PackageSelectionModal';
 
 export const LoginDashboard: React.FC = () => {
   const {
@@ -45,14 +47,17 @@ export const LoginDashboard: React.FC = () => {
     switchEmployeeByPin,
     storeProfile,
     businessIdentity,
+    subscription,
     resetToSampleData,
     setActiveTab,
     setIsDevConsoleOpen,
   } = useBusiness();
 
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
   const [showGroundZeroRegister, setShowGroundZeroRegister] = useState(false);
   const hasBusinesses = employees.length > 0 && !!businessIdentity?.businessId;
+  const isFirstTimePackageRequired = !subscription?.packageSelected && !localStorage.getItem('dmi_initial_package_selected');
 
   // 24/7 Live Clock
   const [liveClock, setLiveClock] = useState<Date>(new Date());
@@ -347,6 +352,16 @@ export const LoginDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setIsPackageModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 hover:text-white border border-emerald-500/30 transition cursor-pointer"
+            title="Select Operating Package (Starter 1 Shop / Business / Enterprise)"
+          >
+            <Store className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Package: {subscription?.tier || 'Starter'} ({subscription?.tier === 'Starter' ? '1 Shop' : 'Multi-Shop'})</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setIsResetModalOpen(true)}
@@ -873,14 +888,6 @@ export const LoginDashboard: React.FC = () => {
             <ShieldCheck className="w-3 h-3 text-blue-400" />
             <span>256-Bit Encrypted Offline-First Architecture</span>
           </span>
-          <button
-            type="button"
-            onClick={() => setIsDevConsoleOpen(true)}
-            className="text-slate-700 hover:text-slate-500 transition cursor-pointer p-0.5"
-            title="Architect Developer Portal (Ctrl+Shift+D)"
-          >
-            <Lock className="w-2.5 h-2.5" />
-          </button>
         </div>
       </footer>
 
@@ -900,6 +907,13 @@ export const LoginDashboard: React.FC = () => {
         isOpen={isRegisterModalOpen}
         onClose={() => setIsRegisterModalOpen(false)}
         onSuccess={() => setIsRegisterModalOpen(false)}
+      />
+
+      {/* Package Selection Modal */}
+      <PackageSelectionModal
+        isOpen={isPackageModalOpen || isFirstTimePackageRequired}
+        onClose={() => setIsPackageModalOpen(false)}
+        canDismiss={!isFirstTimePackageRequired}
       />
     </div>
   );

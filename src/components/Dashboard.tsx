@@ -815,13 +815,15 @@ export const Dashboard: React.FC = () => {
                 <span>Launch POS for {currentBranch.code}</span>
               </button>
 
-              <button
-                onClick={() => setActiveTab('branches')}
-                className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold transition border border-white/20 flex items-center gap-1.5 cursor-pointer"
-              >
-                <ArrowRightLeft className="w-3.5 h-3.5 text-blue-300" />
-                <span>Request IBT Restock</span>
-              </button>
+              {isMultiBranchAndDispatchAllowed && (
+                <button
+                  onClick={() => setActiveTab('branches')}
+                  className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold transition border border-white/20 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <ArrowRightLeft className="w-3.5 h-3.5 text-blue-300" />
+                  <span>Request IBT Restock</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -928,7 +930,7 @@ export const Dashboard: React.FC = () => {
       />
 
       {/* 5. CONSOLIDATED ONLY: BRANCH PERFORMANCE MATRIX & LEADERBOARD */}
-      {isConsolidated && (
+      {isMultiBranchAndDispatchAllowed && isConsolidated && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
@@ -1073,7 +1075,7 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Quick Cross-Branch Stock Movement (IBT) Notice */}
-          {activeTransfers.length > 0 && (
+          {isMultiBranchAndDispatchAllowed && activeTransfers.length > 0 && (
             <div className="p-3 bg-amber-50/70 border-t border-amber-100 flex items-center justify-between gap-3 text-xs text-amber-900">
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-amber-600 shrink-0" />

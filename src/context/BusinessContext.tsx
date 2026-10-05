@@ -108,6 +108,7 @@ interface BusinessContextType {
     password?: string;
     pin?: string;
     taxPin?: string;
+    packageTier?: SubscriptionTier;
   }) => Promise<{ success: boolean; message: string }>;
 
   // Enterprise Security & Staff Control
@@ -335,6 +336,18 @@ interface BusinessContextType {
   updateBusinessIdentity: (updates: Partial<BusinessIdentity>) => void;
   subscription: BusinessSubscription;
   updateSubscriptionTier: (tier: SubscriptionTier) => void;
+  confirmSubscriptionPayment: (params: {
+    mpesaCode: string;
+    amount: number;
+    tier?: SubscriptionTier;
+    phone?: string;
+    notes?: string;
+  }) => { success: boolean; message: string };
+  requestSubscriptionGracePeriod: (params: {
+    hours: number;
+    reason: string;
+    phone?: string;
+  }) => { success: boolean; message: string };
 
   // Device Fleet & Terminal Management
   connectedDevices: ConnectedDevice[];
@@ -681,11 +694,14 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (!saved) return initialSubscription;
     try {
       const parsed = JSON.parse(saved);
-      const tier = parsed.tier || 'Business';
-      const defaultFee = tier === 'Starter' ? 2500 : tier === 'Enterprise' ? 25000 : 7500;
+      const tier = parsed.tier || 'Starter';
+      const defaultFee = tier === 'Starter' ? 1000 : tier === 'Enterprise' ? 10000 : tier === 'Pro' ? 4000 : 2000;
       return {
         ...initialSubscription,
         ...parsed,
+        tier,
+        maxBranches: tier === 'Starter' ? 1 : (parsed.maxBranches || 3),
+        maxDevices: tier === 'Starter' ? 2 : (parsed.maxDevices || 8),
         monthlyFee: typeof parsed.monthlyFee === 'number' ? parsed.monthlyFee : defaultFee,
         licenseKey: parsed.licenseKey || `DMI-LIC-${tier.slice(0, 3).toUpperCase()}-8F42K91`,
       };
@@ -1423,9 +1439,10 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateSubscriptionTier = (tier: SubscriptionTier) => {
     const limits = {
-      Starter: { maxBranches: 1, maxDevices: 2, maxUsers: 3 },
-      Business: { maxBranches: 5, maxDevices: 15, maxUsers: 25 },
-      Enterprise: { maxBranches: 50, maxDevices: 200, maxUsers: 500 },
+      Starter: { maxBranches: 1, maxDevices: 2, maxUsers: 3, monthlyFee: 1000, planCode: 'starter' },
+      Business: { maxBranches: 3, maxDevices: 8, maxUsers: 12, monthlyFee: 2000, planCode: 'business' },
+      Pro: { maxBranches: 8, maxDevices: 20, maxUsers: 30, monthlyFee: 4000, planCode: 'pro' },
+      Enterprise: { maxBranches: 999, maxDevices: 999, maxUsers: 999, monthlyFee: 10000, planCode: 'enterprise' },
     }[tier];
 
     setSubscription((prev) => {
@@ -1433,7 +1450,10 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         ...prev,
         tier,
         ...limits,
+        packageSelected: true,
       };
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}subscription`, JSON.stringify(updated));
+      localStorage.setItem('dmi_initial_package_selected', 'true');
       fetch('/api/subscription', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -1442,14 +1462,123 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return updated;
     });
 
+    if (tier === 'Starter') {
+      setActiveTab((curr) => {
+        if (curr === 'branches' || curr === 'ibt' || curr === 'dispatch') {
+          return 'pos';
+        }
+        return curr;
+      });
+    }
+
     addAuditLog({
-      userId: currentEmployee.id,
+      userId: currentEmployee?.id || 'emp-owner',
       userName: currentEmployee?.name || 'Staff',
-      userRole: currentEmployee.role,
+      userRole: currentEmployee?.role || 'owner',
       action: 'subscription_upgrade',
       targetDescription: `Subscription tier changed to ${tier.toUpperCase()}`,
       newValue: `Max Branches: ${limits.maxBranches}, Max Devices: ${limits.maxDevices}`,
     });
+  };
+
+  // Confirm payment via Till 5331774 & activate subscription
+  const confirmSubscriptionPayment = (params: {
+    mpesaCode: string;
+    amount: number;
+    tier?: SubscriptionTier;
+    phone?: string;
+    notes?: string;
+  }) => {
+    const code = (params.mpesaCode || '').trim().toUpperCase();
+    const effectiveTier = params.tier || subscription.tier || 'Starter';
+    const limits = {
+      Starter: { maxBranches: 1, maxDevices: 2, maxUsers: 3, monthlyFee: 1000, planCode: 'starter' },
+      Business: { maxBranches: 3, maxDevices: 8, maxUsers: 12, monthlyFee: 2000, planCode: 'business' },
+      Pro: { maxBranches: 8, maxDevices: 20, maxUsers: 30, monthlyFee: 4000, planCode: 'pro' },
+      Enterprise: { maxBranches: 999, maxDevices: 999, maxUsers: 999, monthlyFee: 10000, planCode: 'enterprise' },
+    }[effectiveTier];
+
+    const newRenewalDate = new Date(Date.now() + 30 * 86400000).toISOString();
+
+    setSubscription((prev) => {
+      const updated: BusinessSubscription = {
+        ...prev,
+        tier: effectiveTier,
+        ...limits,
+        status: 'active',
+        renewalDate: newRenewalDate,
+        lastPaymentDate: new Date().toISOString(),
+        packageSelected: true,
+        licenseKey: prev.licenseKey || `DMI-LIC-${effectiveTier.slice(0, 3).toUpperCase()}-8F42K91`,
+      };
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}subscription`, JSON.stringify(updated));
+      localStorage.setItem('dmi_initial_package_selected', 'true');
+      localStorage.setItem('dmi_subscription_paid', 'true');
+
+      fetch('/api/subscription', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      }).catch(() => {});
+
+      return updated;
+    });
+
+    addAuditLog({
+      userId: currentEmployee?.id || 'emp-owner',
+      userName: currentEmployee?.name || 'Store Owner',
+      userRole: currentEmployee?.role || 'owner',
+      action: 'subscription_payment_confirmed',
+      targetDescription: `M-Pesa payment of KES ${params.amount} to Till 5331774 confirmed. Receipt: ${code}`,
+      newValue: `Plan: ${effectiveTier}, Valid until: ${newRenewalDate}`,
+    });
+
+    return {
+      success: true,
+      message: `M-Pesa payment ${code} confirmed! Subscription activated for 30 days.`,
+    };
+  };
+
+  // Request a Grace Period when subscription has elapsed
+  const requestSubscriptionGracePeriod = (params: {
+    hours: number;
+    reason: string;
+    phone?: string;
+  }) => {
+    const hours = Math.max(1, params.hours || 24);
+    const endsAt = new Date(Date.now() + hours * 3600000).toISOString();
+
+    setSubscription((prev) => {
+      const updated: BusinessSubscription = {
+        ...prev,
+        status: 'grace_period',
+        gracePeriodDays: Math.ceil(hours / 24),
+        gracePeriodEndsAt: endsAt,
+      };
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}subscription`, JSON.stringify(updated));
+
+      fetch('/api/subscription', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      }).catch(() => {});
+
+      return updated;
+    });
+
+    addAuditLog({
+      userId: currentEmployee?.id || 'emp-owner',
+      userName: currentEmployee?.name || 'Store Owner',
+      userRole: currentEmployee?.role || 'owner',
+      action: 'grace_period_granted',
+      targetDescription: `Requested ${hours}h grace period. Reason: "${params.reason}"`,
+      newValue: `Grace ends at: ${endsAt}`,
+    });
+
+    return {
+      success: true,
+      message: `Grace period granted for ${hours} hours. App access restored until ${new Date(endsAt).toLocaleDateString()} ${new Date(endsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`,
+    };
   };
 
   // === PLAN RESTRICTION & GUIDELINE ENFORCEMENT ENGINE ===
@@ -1523,11 +1652,9 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Developer & SuperAdmin rights: ONLY David Migichi (migichidave09@gmail.com) has access
   const isMasterDeveloper = useMemo(() => {
     const isSessionSuperAdmin = typeof window !== 'undefined' && sessionStorage.getItem('dmi_superadmin_auth') === 'true';
-    return Boolean(
-      (isDeveloperAuthenticated &&
-      currentEmployee?.email?.toLowerCase() === 'migichidave09@gmail.com') ||
-      isSessionSuperAdmin
-    );
+    const isDavidEmail = currentEmployee?.email?.toLowerCase() === 'migichidave09@gmail.com';
+    // Strictly require David's email AND superadmin or developer authentication
+    return Boolean(isDavidEmail && (isDeveloperAuthenticated || isSessionSuperAdmin));
   }, [isDeveloperAuthenticated, currentEmployee]);
 
   const updateClientPlan = (businessId: string, tier: SubscriptionTier, customFee?: number) => {
@@ -5414,6 +5541,7 @@ _Generated via DMi Business OS_`;
     password?: string;
     pin?: string;
     taxPin?: string;
+    packageTier?: SubscriptionTier;
   }) => {
     const randomSuffix = Math.floor(100 + Math.random() * 900);
     const newBusinessId = `BUS-${Math.random().toString(36).substring(2, 6).toUpperCase()}${randomSuffix}`;
@@ -5421,6 +5549,14 @@ _Generated via DMi Business OS_`;
     const branchHQName = payload.branchName?.trim() || 'Main Branch HQ';
     const ownerEmpId = `emp-${Math.random().toString(36).substring(2, 7)}`;
     const nowIso = new Date().toISOString();
+
+    const chosenTier: SubscriptionTier = payload.packageTier || 'Starter';
+    const planLimits = {
+      Starter: { maxBranches: 1, maxDevices: 2, maxUsers: 3, monthlyFee: 1000, planCode: 'starter' },
+      Business: { maxBranches: 3, maxDevices: 8, maxUsers: 12, monthlyFee: 2000, planCode: 'business' },
+      Pro: { maxBranches: 8, maxDevices: 20, maxUsers: 30, monthlyFee: 4000, planCode: 'pro' },
+      Enterprise: { maxBranches: 999, maxDevices: 999, maxUsers: 999, monthlyFee: 10000, planCode: 'enterprise' },
+    }[chosenTier];
 
     const newBizIdentity: BusinessIdentity = {
       businessId: newBusinessId,
@@ -5501,6 +5637,19 @@ _Generated via DMi Business OS_`;
       terminalNumber: 'TERM-01',
     };
 
+    const updatedSubscription: BusinessSubscription = {
+      ...initialSubscription,
+      tier: chosenTier,
+      maxBranches: planLimits.maxBranches,
+      maxDevices: planLimits.maxDevices,
+      maxUsers: planLimits.maxUsers,
+      monthlyFee: planLimits.monthlyFee,
+      planCode: planLimits.planCode,
+      status: 'active',
+      packageSelected: true,
+      licenseKey: `DMI-LIC-${chosenTier.slice(0, 2).toUpperCase()}-${newBusinessId.replace(/[^A-Z0-9]/gi, '').slice(-4)}-9901-K91E`,
+    };
+
     const newClientSold: ClientSoldSystem = {
       id: `CLI-${Math.floor(100 + Math.random() * 900)}`,
       businessId: newBusinessId,
@@ -5509,10 +5658,10 @@ _Generated via DMi Business OS_`;
       ownerPhone: newBizIdentity.ownerPhone,
       ownerEmail: newBizIdentity.ownerEmail,
       location: newProfile.location,
-      package: 'Business',
-      monthlyFee: 7500,
+      package: chosenTier,
+      monthlyFee: planLimits.monthlyFee,
       status: 'active',
-      licenseKey: `DMI-LIC-BZ-${newBusinessId.replace(/[^A-Z0-9]/gi, '').slice(-4)}-9901-K91E`,
+      licenseKey: updatedSubscription.licenseKey,
       soldDate: nowIso,
       renewalDate: new Date(Date.now() + 365 * 86400000).toISOString(),
       lastPaymentDate: nowIso,
@@ -5544,8 +5693,9 @@ _Generated via DMi Business OS_`;
     setConnectedDevices([defaultDevice]);
     setCurrentDeviceId(defaultDevice.id);
     setClientSoldSystems([newClientSold]);
+    setSubscription(updatedSubscription);
     setIsSessionAuthenticated(true);
-    setActiveTab('dashboard');
+    setActiveTab('pos');
 
     localStorage.setItem(GROUND_ZERO_CLEAN_SLATE_KEY, 'true');
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}session_authenticated`, 'true');
@@ -5558,6 +5708,8 @@ _Generated via DMi Business OS_`;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}connected_devices`, JSON.stringify([defaultDevice]));
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}current_device_id`, defaultDevice.id);
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}client_sold_systems`, JSON.stringify([newClientSold]));
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}subscription`, JSON.stringify(updatedSubscription));
+    localStorage.setItem('dmi_initial_package_selected', 'true');
 
     try {
       await fetch('/api/saas/businesses', {
@@ -5794,6 +5946,8 @@ _Generated via DMi Business OS_`;
         updateBusinessIdentity,
         subscription,
         updateSubscriptionTier,
+        confirmSubscriptionPayment,
+        requestSubscriptionGracePeriod,
 
         // Device Fleet & Terminal Management
         connectedDevices,
