@@ -195,18 +195,29 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
 
   // Cryptographic Licenses List - Live from Supabase
   const cryptoLicenses = useMemo(() => {
-    return (liveLicensesData || []).map((l: any) => ({
-      licenseKey: l.licenseKey || l.license_key,
-      businessId: l.businessId || l.business_id,
-      businessName: l.businessName || l.business_name,
-      tier: l.tier || l.plan_tier || 'Business',
-      maxDevices: l.maxDevices || l.max_devices || 15,
-      unlockedDevices: l.unlockedDevices || l.unlocked_devices || [],
-      requiredOnNewDevices: l.requiredOnNewDevices ?? l.required_on_new_devices ?? true,
-      issuedDate: l.issuedDate || l.issued_date,
-      expiresDate: l.expiresDate || l.expires_date,
-      status: l.status || 'active',
-    }));
+    const seen = new Set<string>();
+    const list: any[] = [];
+    (liveLicensesData || []).forEach((l: any, idx: number) => {
+      if (!l) return;
+      const rawKey = l.licenseKey || l.license_key || `LIC-DMI-${idx + 1}`;
+      const uniqueKey = seen.has(rawKey) ? `${rawKey}-${idx}` : rawKey;
+      seen.add(uniqueKey);
+
+      list.push({
+        ...l,
+        licenseKey: uniqueKey,
+        businessId: l.businessId || l.business_id || 'N/A',
+        businessName: l.businessName || l.business_name || 'Business',
+        tier: l.tier || l.plan_tier || 'Business',
+        maxDevices: l.maxDevices || l.max_devices || 15,
+        unlockedDevices: l.unlockedDevices || l.unlocked_devices || [],
+        requiredOnNewDevices: l.requiredOnNewDevices ?? l.required_on_new_devices ?? true,
+        issuedDate: l.issuedDate || l.issued_date,
+        expiresDate: l.expiresDate || l.expires_date,
+        status: l.status || 'active',
+      });
+    });
+    return list;
   }, [liveLicensesData]);
 
   // SuperAdmin Authentication State
@@ -267,50 +278,77 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
 
   // Dynamic Businesses list - live & active from Supabase console_clients
   const businesses = useMemo(() => {
-    return (liveClientsData || []).map((c: any) => {
+    const seen = new Set<string>();
+    const list: any[] = [];
+
+    (liveClientsData || []).forEach((c: any, index: number) => {
+      if (!c) return;
       const now = Date.now();
-      const ren = c.renewal_date ? new Date(c.renewal_date).getTime() : now + 30 * 86400000;
+      const ren = c.renewal_date
+        ? new Date(c.renewal_date).getTime()
+        : c.renewalDate
+        ? new Date(c.renewalDate).getTime()
+        : now + 30 * 86400000;
       const daysRem = Math.max(0, Math.ceil((ren - now) / 86400000));
-      return {
+      const bizId = c.business_id || c.businessId || c.id || `BUS-TENANT-${index + 1}`;
+
+      // Deduplicate by businessId
+      if (seen.has(bizId)) return;
+      seen.add(bizId);
+
+      const name = c.business_name || c.businessName || c.name || `Business ${index + 1}`;
+      const planName = c.package || c.planName || c.plan_tier || c.tier || 'Business';
+      const status = c.status || c.computedStatus || 'active';
+
+      list.push({
         ...c,
-        name: c.business_name,
-        businessName: c.business_name,
-        businessId: c.business_id,
-        planName: c.package,
-        subscriptionPlan: c.package,
-        tier: c.package,
-        computedStatus: c.status,
-        status: c.status,
-        monthlyPriceKes: c.monthly_fee,
-        mrrKes: c.billing_cycle === 'annual' ? Math.round((c.annual_fee || c.monthly_fee * 10) / 12) : c.monthly_fee,
-        branchesCount: c.branches_count || 1,
-        devicesCount: c.fleet_count || 1,
-        onlineDevicesCount: c.online_fleet_count || 0,
-        employeesCount: c.package === 'Starter' ? 2 : c.package === 'Enterprise' ? 20 : 6,
-        renewalDate: c.renewal_date,
-        daysRemaining: c.days_left !== undefined ? c.days_left : daysRem,
-        devices: c.devices || [],
-        location: c.city || 'Nairobi',
-      };
+        name,
+        businessName: name,
+        businessId: bizId,
+        planName,
+        subscriptionPlan: planName,
+        tier: planName,
+        computedStatus: status,
+        status,
+        monthlyPriceKes: c.monthly_fee ?? c.monthlyPriceKes ?? 2500,
+        mrrKes: c.billing_cycle === 'annual' || c.billingCycle === 'annual'
+          ? Math.round((c.annual_fee || c.annualPriceKes || (c.monthly_fee || c.monthlyPriceKes || 2500) * 10) / 12)
+          : (c.monthly_fee || c.monthlyPriceKes || 2500),
+        branchesCount: c.branches_count || c.branchesCount || 1,
+        devicesCount: c.fleet_count || c.devicesCount || 1,
+        onlineDevicesCount: c.online_fleet_count || c.onlineDevicesCount || 0,
+        employeesCount: c.employeesCount || (planName === 'Starter' ? 2 : planName === 'Enterprise' ? 20 : 6),
+        renewalDate: c.renewal_date || c.renewalDate || new Date(ren).toISOString(),
+        daysRemaining: c.days_left !== undefined ? c.days_left : (c.daysRemaining !== undefined ? c.daysRemaining : daysRem),
+        devices: Array.isArray(c.devices) ? c.devices : [],
+        location: c.city || c.location || 'Nairobi',
+      });
     });
+
+    return list;
   }, [liveClientsData]);
 
   // Realtime Live Fleet Terminals flattened across all tenants
   const allFleetTerminals = useMemo(() => {
     const list: any[] = [];
-    (businesses || []).forEach((b: any) => {
+    const seen = new Set<string>();
+    (businesses || []).forEach((b: any, bIdx: number) => {
       if (b && Array.isArray(b.devices)) {
-        b.devices.forEach((d: any) => {
+        b.devices.forEach((d: any, dIdx: number) => {
           if (!d) return;
+          const rawId = d.id || d.device_id || `term-${b.businessId || bIdx}-${dIdx}`;
+          const id = seen.has(rawId) ? `${rawId}-${bIdx}-${dIdx}` : rawId;
+          seen.add(id);
+
           list.push({
-            id: d.id || d.device_id,
-            name: d.name || d.device_name || `Terminal (${d.connection_type || 'WiFi'})`,
-            tenantId: b.businessId || b.id,
+            id,
+            name: d.name || d.device_name || `Terminal (${d.connection_type || d.connectionType || 'WiFi'})`,
+            tenantId: b.businessId || b.id || 'N/A',
             tenantName: b.name || b.businessName || 'Business',
-            connectionType: d.connection_type || 'WiFi',
-            isOnline: Boolean(d.is_online),
-            appVersion: d.app_version || '2.4.1-prod',
-            lastSeenAt: d.last_seen_at || new Date().toISOString(),
+            connectionType: d.connection_type || d.connectionType || 'WiFi',
+            isOnline: Boolean(d.is_online ?? d.isOnline),
+            appVersion: d.app_version || d.appVersion || '2.4.1-prod',
+            lastSeenAt: d.last_seen_at || d.lastSeenAt || new Date().toISOString(),
           });
         });
       }
@@ -416,61 +454,88 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
   // Plans, Invoices, Settings, Logs directly from Supabase SWR
   const plans = useMemo(() => {
     if (livePlansData && livePlansData.length > 0) {
-      return livePlansData.map((p: any) => ({
-        id: `plan-${p?.id || 'std'}`,
-        code: p?.id || 'standard',
+      return livePlansData.map((p: any, idx: number) => ({
+        id: p?.id ? `plan-${p.id}` : `plan-std-${idx}`,
+        code: p?.id || p?.code || `standard-${idx}`,
         name: p?.name ? `DMi ${p.name}` : `DMi ${p?.tier || 'Plan'}`,
         tier: (p?.tier || p?.name || 'Starter') as any,
-        monthlyPriceKes: p?.monthly_fee ?? 2500,
-        annualPriceKes: p?.annual_fee ?? 25000,
-        maxBranches: p?.limits?.max_branches ?? 1,
-        maxDevices: p?.limits?.max_devices ?? 2,
-        maxUsers: p?.limits?.max_staff ?? 3,
-        maxProducts: p?.limits?.max_products ?? 1000,
+        monthlyPriceKes: p?.monthly_fee ?? p?.monthlyPriceKes ?? 2500,
+        annualPriceKes: p?.annual_fee ?? p?.annualPriceKes ?? 25000,
+        maxBranches: p?.limits?.max_branches ?? p?.maxBranches ?? 1,
+        maxDevices: p?.limits?.max_devices ?? p?.maxDevices ?? 2,
+        maxUsers: p?.limits?.max_staff ?? p?.maxUsers ?? 3,
+        maxProducts: p?.limits?.max_products ?? p?.maxProducts ?? 1000,
         features: [
-          `${p?.limits?.max_branches ?? 1} branch${(p?.limits?.max_branches ?? 1) > 1 ? 'es' : ''} operation`,
-          `Up to ${p?.limits?.max_devices ?? 2} connected terminals`,
+          `${p?.limits?.max_branches ?? p?.maxBranches ?? 1} branch${(p?.limits?.max_branches ?? p?.maxBranches ?? 1) > 1 ? 'es' : ''} operation`,
+          `Up to ${p?.limits?.max_devices ?? p?.maxDevices ?? 2} connected terminals`,
           `Real-time offline-first sales engine`,
           `Automated daily cloud snapshots`,
         ],
         isActive: true,
-        supportLevel: p?.id === 'enterprise' ? 'dedicated_account_manager' : 'priority_phone',
+        supportLevel: (p?.id === 'enterprise' || p?.code === 'enterprise') ? 'dedicated_account_manager' : 'priority_phone',
       }));
     }
     return [];
   }, [livePlansData]);
 
   const invoices = useMemo(() => {
-    return (liveInvoicesData || []).map((inv: any) => ({
-      id: inv.id,
-      invoiceNumber: inv.invoice_number,
-      businessId: inv.business_id,
-      businessName: inv.business_name,
-      planName: inv.plan_tier,
-      billingCycle: inv.billing_cycle,
-      amountKes: inv.amount_kes,
-      transactionReference: inv.mpesa_receipt,
-      paymentMethod: inv.payment_method,
-      paymentDate: inv.paid_at || inv.due_date,
-      status: inv.status,
-    }));
+    const seen = new Set<string>();
+    const list: any[] = [];
+    (liveInvoicesData || []).forEach((inv: any, idx: number) => {
+      if (!inv) return;
+      const invId = inv.id || inv.invoiceNumber || inv.invoice_number || `inv-${idx}`;
+      const uniqueId = seen.has(invId) ? `${invId}-${idx}` : invId;
+      seen.add(uniqueId);
+
+      list.push({
+        ...inv,
+        id: uniqueId,
+        invoiceNumber: inv.invoiceNumber || inv.invoice_number || `INV-${idx + 1}`,
+        businessId: inv.businessId || inv.business_id || 'N/A',
+        businessName: inv.businessName || inv.business_name || 'Business',
+        planName: inv.planName || inv.plan_tier || 'Plan',
+        billingCycle: inv.billingCycle || inv.billing_cycle || 'monthly',
+        amountKes: inv.amountKes ?? inv.amount_kes ?? 0,
+        transactionReference: inv.transactionReference || inv.mpesa_receipt || 'N/A',
+        paymentMethod: inv.paymentMethod || inv.payment_method || 'mpesa',
+        paymentDate: inv.paymentDate || inv.paid_at || inv.due_date || new Date().toISOString(),
+        status: inv.status || 'paid',
+      });
+    });
+    return list;
   }, [liveInvoicesData]);
 
   const auditLogs = useMemo(() => {
-    return (liveSupportData || []).map((log: any) => ({
-      id: log.id,
-      adminId: log.admin_id,
-      adminName: log.admin_name,
-      businessId: log.business_id,
-      businessName: log.business_name,
-      reason: log.reason,
-      startedAt: log.started_at,
-      endedAt: log.ended_at,
-      expiresAt: log.expires_at,
-      dataAccessed: Array.isArray(log.data_scopes) ? log.data_scopes.join(', ') : log.data_scopes,
-      actions: log.actions || 'VIEW ONLY',
-      status: log.status,
-    }));
+    const seen = new Set<string>();
+    const list: any[] = [];
+    (liveSupportData || []).forEach((log: any, idx: number) => {
+      if (!log) return;
+      const logId = log.id || `audit-log-${idx}`;
+      const uniqueId = seen.has(logId) ? `${logId}-${idx}` : logId;
+      seen.add(uniqueId);
+
+      list.push({
+        ...log,
+        id: uniqueId,
+        adminId: log.adminId || log.admin_id || 'admin',
+        adminName: log.adminName || log.admin_name || 'System Admin',
+        adminEmail: log.adminEmail || log.admin_email || 'admin@dmibusiness.co.ke',
+        businessId: log.businessId || log.business_id || 'N/A',
+        businessName: log.businessName || log.business_name || 'Business',
+        reason: log.reason || 'Support inspection',
+        startedAt: log.startedAt || log.started_at,
+        endedAt: log.endedAt || log.ended_at,
+        expiresAt: log.expiresAt || log.expires_at,
+        dataAccessed: Array.isArray(log.data_scopes)
+          ? log.data_scopes.join(', ')
+          : Array.isArray(log.dataScopes)
+          ? log.dataScopes.join(', ')
+          : (log.data_scopes || log.dataScopes || log.dataAccessed || 'Sales report, Sales transactions'),
+        actions: log.actions || 'VIEW ONLY',
+        status: log.status || 'closed',
+      });
+    });
+    return list;
   }, [liveSupportData]);
 
   const [platformSettings, setPlatformSettings] = useState<PlatformGlobalSettings>(defaultPlatformSettings);
@@ -1521,13 +1586,13 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
-                  {filteredBusinesses.map((biz) => {
+                  {filteredBusinesses.map((biz, index) => {
                     const isSuspended = biz.computedStatus === 'suspended';
                     const isInGrace = biz.computedStatus === 'grace_period';
                     const isTrial = biz.computedStatus === 'trial';
 
                     return (
-                      <tr key={biz.businessId} className="hover:bg-slate-50/70 transition">
+                      <tr key={biz.businessId ? `${biz.businessId}-${index}` : `biz-${index}`} className="hover:bg-slate-50/70 transition">
                         <td className="py-3.5 px-4">
                           <div className="font-bold text-slate-900">{biz?.name || biz?.businessName || 'Business'}</div>
                           <div className="flex items-center gap-1.5 mt-0.5">
@@ -1700,8 +1765,8 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                   onChange={(e) => setActiveRenewalBizId(e.target.value)}
                   className="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none"
                 >
-                  {(businesses || []).map((b) => (
-                    <option key={b.businessId} value={b.businessId}>
+                  {(businesses || []).map((b, index) => (
+                    <option key={b.businessId ? `${b.businessId}-${index}` : `biz-opt-${index}`} value={b.businessId}>
                       {b?.name || b?.businessName || b.businessId} ({b.computedStatus || 'active'})
                     </option>
                   ))}
@@ -1758,8 +1823,8 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
-                  {invoices.map((inv) => (
-                    <tr key={inv.id} className="hover:bg-slate-50/60 transition">
+                  {invoices.map((inv, index) => (
+                    <tr key={inv.id ? `${inv.id}-${index}` : `inv-${index}`} className="hover:bg-slate-50/60 transition">
                       <td className="py-3 px-4 font-mono font-bold text-blue-600">
                         {inv.invoiceNumber}
                       </td>
@@ -1801,8 +1866,8 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
       {activeTab === 'plans' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {plans.map((p) => (
-              <div key={p.id} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
+            {plans.map((p, pIdx) => (
+              <div key={p.id ? `${p.id}-${pIdx}` : `plan-${pIdx}`} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
@@ -1844,7 +1909,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
 
                   <ul className="mt-4 space-y-1.5 text-[11px] text-slate-600">
                     {p.features.map((f, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
+                      <li key={`feat-${p.id || pIdx}-${i}`} className="flex items-start gap-1.5">
                         <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
                         <span>{f}</span>
                       </li>
@@ -2013,7 +2078,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                   {cryptoLicenses.map((lic, index) => {
                     const isCopied = copiedKey === lic.licenseKey;
                     return (
-                      <tr key={lic.licenseKey || index} className="hover:bg-slate-50/80 transition">
+                      <tr key={lic.licenseKey ? `${lic.licenseKey}-${index}` : `lic-${index}`} className="hover:bg-slate-50/80 transition">
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-2">
                             <span className="font-mono font-black text-amber-900 bg-amber-50 px-2 py-1 rounded border border-amber-200 text-[11px]">
@@ -2189,10 +2254,10 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
-                  {auditLogs.map((log) => {
+                  {auditLogs.map((log, index) => {
                     const isActive = log.status === 'active' || (!log.endedAt && log.expiresAt && new Date(log.expiresAt).getTime() > Date.now());
                     return (
-                      <tr key={log.id} className="hover:bg-slate-50/60 transition">
+                      <tr key={log.id ? `${log.id}-${index}` : `audit-${index}`} className="hover:bg-slate-50/60 transition">
                         <td className="py-3.5 px-4">
                           {isActive ? (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
@@ -2506,8 +2571,8 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                       </td>
                     </tr>
                   ) : (
-                    allFleetTerminals.map((term: any) => (
-                      <tr key={term.id} className="hover:bg-slate-50/70 transition">
+                    allFleetTerminals.map((term: any, index: number) => (
+                      <tr key={term.id ? `${term.id}-${index}` : `term-${index}`} className="hover:bg-slate-50/70 transition">
                         <td className="py-3 px-4">
                           <div className="font-bold text-slate-900 flex items-center gap-1.5">
                             <span className={`w-2 h-2 rounded-full ${term?.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
@@ -2610,8 +2675,8 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
                     Live Supabase Device Topology
                   </div>
-                  {selectedBusinessDetail.devices.map((dev: any) => (
-                    <div key={dev.device_id} className="flex items-center justify-between text-[11px] py-1 border-b border-slate-200/60 last:border-0">
+                  {selectedBusinessDetail.devices.map((dev: any, index: number) => (
+                    <div key={dev.device_id || dev.id ? `${dev.device_id || dev.id}-${index}` : `dev-${index}`} className="flex items-center justify-between text-[11px] py-1 border-b border-slate-200/60 last:border-0">
                       <div className="flex items-center gap-1.5">
                         <span className={`w-2 h-2 rounded-full ${dev.is_online ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
                         <span className="font-bold text-slate-800">{dev.device_name || dev.device_id}</span>
@@ -3204,8 +3269,8 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                       onChange={(e) => setStaffBizId(e.target.value)}
                       className="w-full h-11 px-3.5 pr-10 text-xs text-slate-900 bg-white border-2 border-slate-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-hidden font-bold shadow-xs appearance-none cursor-pointer"
                     >
-                      {availableTenants.map((b) => (
-                        <option key={b.businessId} value={b.businessId} className="py-2 text-slate-900 bg-white font-medium">
+                      {availableTenants.map((b, index) => (
+                        <option key={b.businessId ? `${b.businessId}-${index}` : `staff-avail-${index}`} value={b.businessId} className="py-2 text-slate-900 bg-white font-medium">
                           {b.businessName} — [{b.businessId}] ({b.subscriptionPlan || 'Active'} Plan)
                         </option>
                       ))}
@@ -3436,8 +3501,8 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                           No business tenants available
                         </option>
                       ) : (
-                        availableTenants.map((b) => (
-                          <option key={b.businessId} value={b.businessId} className="py-2 text-slate-900 bg-white font-medium">
+                        availableTenants.map((b, index) => (
+                          <option key={b.businessId ? `${b.businessId}-${index}` : `crypto-avail-${index}`} value={b.businessId} className="py-2 text-slate-900 bg-white font-medium">
                             {b.businessName} — [{b.businessId}] ({b.subscriptionPlan || 'Active'} Plan)
                           </option>
                         ))
