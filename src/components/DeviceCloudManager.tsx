@@ -92,12 +92,13 @@ export const DeviceCloudManager: React.FC = () => {
     signedLicense,
     verifyOfflineLicense,
     isDeveloperAuthenticated,
+    isMasterDeveloper,
     isDevConsoleOpen,
     setIsDevConsoleOpen,
   } = useBusiness();
 
   const [activeSubTab, setActiveSubTab] = useState<
-    'overview' | 'terminals' | 'pairing' | 'sessions' | 'sync-engine' | 'soft-delete' | 'disaster-recovery'
+    'overview' | 'terminals' | 'pairing' | 'sessions' | 'sync-engine' | 'soft-delete'
   >('overview');
 
   // Pairing Modal state
@@ -469,7 +470,6 @@ export const DeviceCloudManager: React.FC = () => {
           { id: 'sessions', label: `4. Active Sessions (${deviceSessions.filter((s) => s.status === 'active').length})`, icon: <Activity className="w-4 h-4" /> },
           { id: 'sync-engine', label: '5. Event Delta & Conflicts', icon: <History className="w-4 h-4" /> },
           { id: 'soft-delete', label: `6. Soft-Delete Vault (${softDeletedRecords.length})`, icon: <Archive className="w-4 h-4" /> },
-          { id: 'disaster-recovery', label: '7. Multi-Level Backups', icon: <HardDrive className="w-4 h-4" /> },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -534,15 +534,17 @@ export const DeviceCloudManager: React.FC = () => {
                   </span>
                 </div>
 
-                {/* Developer Doorway Trigger */}
-                <button
-                  onClick={() => setIsDevConsoleOpen(true)}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 shadow cursor-pointer"
-                  title="Software Developer Telemetry & Remote Maintenance Console"
-                >
-                  <Key className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Developer Console</span>
-                </button>
+                {/* Developer Doorway Trigger - Strictly for David Migichi */}
+                {isMasterDeveloper && (
+                  <button
+                    onClick={() => setIsDevConsoleOpen(true)}
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 shadow cursor-pointer"
+                    title="Software Developer Telemetry & Remote Maintenance Console"
+                  >
+                    <Key className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Developer Console</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1045,12 +1047,12 @@ export const DeviceCloudManager: React.FC = () => {
                     <select
                       value={replacementType}
                       onChange={(e) => setReplacementType(e.target.value as DeviceHardwareType)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white text-slate-900 font-medium shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     >
-                      <option value="desktop_pc">Desktop PC</option>
-                      <option value="laptop">Laptop Computer</option>
-                      <option value="tablet">Touch POS Tablet</option>
-                      <option value="phone">Mobile Phone</option>
+                      <option value="desktop_pc" className="bg-white text-slate-900">Desktop PC</option>
+                      <option value="laptop" className="bg-white text-slate-900">Laptop Computer</option>
+                      <option value="tablet" className="bg-white text-slate-900">Touch POS Tablet</option>
+                      <option value="phone" className="bg-white text-slate-900">Mobile Phone</option>
                     </select>
                   </div>
                 </div>
@@ -1154,10 +1156,10 @@ export const DeviceCloudManager: React.FC = () => {
                       <select
                         value={selectedBranchForCode}
                         onChange={(e) => setSelectedBranchForCode(e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 font-semibold shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       >
                         {branches.map((b) => (
-                          <option key={b.id} value={b.id}>{b.name}</option>
+                          <option key={b.id} value={b.id} className="bg-white text-slate-900">{b.name}</option>
                         ))}
                       </select>
                     </div>
@@ -1167,11 +1169,11 @@ export const DeviceCloudManager: React.FC = () => {
                       <select
                         value={selectedRoleForCode}
                         onChange={(e) => setSelectedRoleForCode(e.target.value as UserRole)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 font-semibold shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       >
-                        <option value="cashier">Cashier POS Terminal</option>
-                        <option value="storekeeper">Warehouse & Inventory Tablet</option>
-                        <option value="manager">Branch Manager Station</option>
+                        <option value="cashier" className="bg-white text-slate-900">Cashier POS Terminal</option>
+                        <option value="storekeeper" className="bg-white text-slate-900">Warehouse & Inventory Tablet</option>
+                        <option value="manager" className="bg-white text-slate-900">Branch Manager Station</option>
                       </select>
                     </div>
 
@@ -1245,12 +1247,12 @@ export const DeviceCloudManager: React.FC = () => {
                       <select
                         value={newDeviceType}
                         onChange={(e) => setNewDeviceType(e.target.value as DeviceHardwareType)}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm"
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm bg-white text-slate-900 font-semibold shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       >
-                        <option value="desktop_pc">Desktop PC</option>
-                        <option value="laptop">Laptop Computer</option>
-                        <option value="tablet">Touch POS Tablet</option>
-                        <option value="phone">Smartphone</option>
+                        <option value="desktop_pc" className="bg-white text-slate-900">Desktop PC</option>
+                        <option value="laptop" className="bg-white text-slate-900">Laptop Computer</option>
+                        <option value="tablet" className="bg-white text-slate-900">Touch POS Tablet</option>
+                        <option value="phone" className="bg-white text-slate-900">Smartphone</option>
                       </select>
                     </div>
 
@@ -1259,10 +1261,10 @@ export const DeviceCloudManager: React.FC = () => {
                       <select
                         value={newDeviceBranch}
                         onChange={(e) => setNewDeviceBranch(e.target.value)}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm"
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm bg-white text-slate-900 font-semibold shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       >
                         {branches.map((b) => (
-                          <option key={b.id} value={b.id}>{b.name}</option>
+                          <option key={b.id} value={b.id} className="bg-white text-slate-900">{b.name}</option>
                         ))}
                       </select>
                     </div>
@@ -1322,12 +1324,12 @@ export const DeviceCloudManager: React.FC = () => {
                     <select
                       value={newDeviceType}
                       onChange={(e) => setNewDeviceType(e.target.value as DeviceHardwareType)}
-                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm"
+                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm bg-white text-slate-900 font-semibold shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     >
-                      <option value="laptop">Laptop</option>
-                      <option value="phone">Mobile Phone</option>
-                      <option value="desktop_pc">Office Desktop</option>
-                      <option value="tablet">iPad / Tablet</option>
+                      <option value="laptop" className="bg-white text-slate-900">Laptop</option>
+                      <option value="phone" className="bg-white text-slate-900">Mobile Phone</option>
+                      <option value="desktop_pc" className="bg-white text-slate-900">Office Desktop</option>
+                      <option value="tablet" className="bg-white text-slate-900">iPad / Tablet</option>
                     </select>
                   </div>
                 </div>
@@ -1445,10 +1447,10 @@ export const DeviceCloudManager: React.FC = () => {
                   <select
                     value={demoSelectedTerminal}
                     onChange={(e) => setDemoSelectedTerminal(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 font-semibold shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   >
                     {connectedDevices.map((d) => (
-                      <option key={d.id} value={d.id}>{d.name} ({d.terminalNumber})</option>
+                      <option key={d.id} value={d.id} className="bg-white text-slate-900">{d.name} ({d.terminalNumber})</option>
                     ))}
                   </select>
                 </div>
@@ -1458,10 +1460,10 @@ export const DeviceCloudManager: React.FC = () => {
                   <select
                     value={demoSelectedProduct}
                     onChange={(e) => setDemoSelectedProduct(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 font-semibold shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   >
                     {products.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name} (Cur: {p.stockQuantity})</option>
+                      <option key={p.id} value={p.id} className="bg-white text-slate-900">{p.name} (Cur: {p.stockQuantity})</option>
                     ))}
                   </select>
                 </div>
@@ -1504,10 +1506,10 @@ export const DeviceCloudManager: React.FC = () => {
                 <select
                   value={inspectProductId}
                   onChange={(e) => setInspectProductId(e.target.value)}
-                  className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs"
+                  className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 font-semibold shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
                   {products.map((p) => (
-                    <option key={p.id} value={p.id}>{p?.name || 'Product'}</option>
+                    <option key={p.id} value={p.id} className="bg-white text-slate-900">{p?.name || 'Product'}</option>
                   ))}
                 </select>
               </div>
@@ -1620,169 +1622,13 @@ export const DeviceCloudManager: React.FC = () => {
         </div>
       )}
 
-      {/* SUB-TAB 7: MULTI-LEVEL BACKUPS & DISASTER RECOVERY */}
-      {activeSubTab === 'disaster-recovery' && (
-        <div className="space-y-6">
-          {/* Section 19: The 3 Levels of Disaster Recovery */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-800 mb-2">
-              The 3-Level Disaster Recovery Architecture
-            </h3>
-            <p className="text-xs text-slate-500 mb-6">
-              Even if a server data center burns down or physical terminals are stolen, DMi guarantees zero data loss:
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                <div className="flex items-center gap-2 font-bold text-slate-800 text-sm">
-                  <Laptop className="w-4 h-4 text-blue-600" />
-                  <span>Level 1: Device Database</span>
-                </div>
-                <p className="text-xs text-slate-600">
-                  Local offline cache on every terminal. Even without internet, sales and inventory changes continue uninterrupted.
-                </p>
-              </div>
-
-              <div className="p-4 bg-indigo-50/50 border border-indigo-200 rounded-xl space-y-2">
-                <div className="flex items-center gap-2 font-bold text-indigo-900 text-sm">
-                  <Server className="w-4 h-4 text-indigo-600" />
-                  <span>Level 2: Cloud Database</span>
-                </div>
-                <p className="text-xs text-indigo-700">
-                  Centralized DMi Cloud Master cluster. Reconciles events across all branches in real-time.
-                </p>
-              </div>
-
-              <div className="p-4 bg-emerald-50/50 border border-emerald-200 rounded-xl space-y-2">
-                <div className="flex items-center gap-2 font-bold text-emerald-900 text-sm">
-                  <HardDrive className="w-4 h-4 text-emerald-600" />
-                  <span>Level 3: Automated Snapshots</span>
-                </div>
-                <p className="text-xs text-emerald-700">
-                  Continuous encrypted cloud backups with SHA-256 integrity checksums for complete disaster recovery.
-                </p>
-              </div>
-            </div>
-
-            {/* Disaster Recovery Drill Simulation Action */}
-            <div className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-xl p-5 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h4 className="font-bold text-sm text-white">Cloud Server Failure & Disaster Recovery Drill</h4>
-                  <p className="text-xs text-slate-300">
-                    Test container failover and database reconstruction from snapshots and local offline queues.
-                  </p>
-                </div>
-
-                <button
-                  onClick={handleRunDisasterRecovery}
-                  disabled={isSimulatingDisaster}
-                  className="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold transition shadow cursor-pointer disabled:opacity-50"
-                >
-                  {isSimulatingDisaster ? 'Executing Failover...' : 'Execute Recovery Drill'}
-                </button>
-              </div>
-
-              {disasterDrillSteps.length > 0 && (
-                <div className="bg-black/40 border border-white/10 rounded-lg p-4 font-mono text-xs space-y-2">
-                  {disasterDrillSteps.map((step, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-emerald-400">
-                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                      <span>{step}</span>
-                    </div>
-                  ))}
-                  {disasterDrillDone && (
-                    <p className="text-amber-300 font-bold mt-2 pt-2 border-t border-white/10">
-                      DRILL VERIFIED: 100% data consistency restored under Business ID {businessIdentity.businessId}. Zero sales or inventory lost!
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Cloud Snapshots List & Manual Backup */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h4 className="font-bold text-base text-slate-800">Cloud Backup Snapshots</h4>
-                <p className="text-xs text-slate-500">
-                  Verified snapshots stored in DMi Cloud. Can be restored or exported off-site.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={manualSnapshotLabel}
-                  onChange={(e) => setManualSnapshotLabel(e.target.value)}
-                  placeholder="Snapshot label..."
-                  className="px-3 py-1.5 border border-slate-300 rounded-lg text-xs"
-                />
-                <button
-                  onClick={handleCreateSnapshot}
-                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition cursor-pointer"
-                >
-                  Create Snapshot
-                </button>
-                <button
-                  onClick={handleExportBackup}
-                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export JSON</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200">
-                  <tr>
-                    <th className="py-3 px-4">Snapshot Label</th>
-                    <th className="py-3 px-4">Type</th>
-                    <th className="py-3 px-4">Timestamp</th>
-                    <th className="py-3 px-4">Records Captured</th>
-                    <th className="py-3 px-4">SHA-256 Checksum</th>
-                    <th className="py-3 px-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {cloudBackups.map((snap) => (
-                    <tr key={snap.id} className="hover:bg-slate-50 transition">
-                      <td className="py-3 px-4 font-bold text-slate-800">{snap.label}</td>
-                      <td className="py-3 px-4 capitalize font-medium text-slate-600">{snap.type}</td>
-                      <td className="py-3 px-4 text-slate-500">
-                        {snap?.timestamp ? new Date(snap.timestamp).toLocaleString() : 'Recent'}
-                      </td>
-                      <td className="py-3 px-4 text-slate-600">
-                        {snap.recordsCount.products} prods, {snap.recordsCount.sales} sales, {snap.recordsCount.devices} devices
-                      </td>
-                      <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
-                        {snap.checksum.substring(0, 16)}...
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => restoreCloudBackupSnapshot(snap.id)}
-                          className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-bold text-xs transition cursor-pointer"
-                        >
-                          Restore State
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      {/* Developer Master Console Modal (Decoupled & Key-Protected - strictly for David Migichi) */}
+      {isMasterDeveloper && (
+        <DeveloperConsoleModal
+          isOpen={isDevConsoleOpen}
+          onClose={() => setIsDevConsoleOpen(false)}
+        />
       )}
-
-      {/* Developer Master Console Modal (Decoupled & Key-Protected) */}
-      <DeveloperConsoleModal
-        isOpen={isDevConsoleOpen}
-        onClose={() => setIsDevConsoleOpen(false)}
-      />
     </div>
   );
 };

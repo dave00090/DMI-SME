@@ -3044,16 +3044,16 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                     <select
                       value={newBizCategory}
                       onChange={(e) => setNewBizCategory(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 text-xs bg-white text-slate-900 font-medium border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
                     >
-                      <option value="Liquor Store">Liquor Store / Wines & Spirits</option>
-                      <option value="Hardware">Hardware & Building Supplies</option>
-                      <option value="Supermarket">Supermarket & Grocery</option>
-                      <option value="Pharmacy">Pharmacy & Chemist</option>
-                      <option value="Agrovet">Agrovet & Farming</option>
-                      <option value="Electronics">Electronics & Appliances</option>
-                      <option value="Wholesale Distributor">Wholesale Distributor</option>
-                      <option value="General Retail">General Retail</option>
+                      <option value="Liquor Store" className="bg-white text-slate-900">Liquor Store / Wines & Spirits</option>
+                      <option value="Hardware" className="bg-white text-slate-900">Hardware & Building Supplies</option>
+                      <option value="Supermarket" className="bg-white text-slate-900">Supermarket & Grocery</option>
+                      <option value="Pharmacy" className="bg-white text-slate-900">Pharmacy & Chemist</option>
+                      <option value="Agrovet" className="bg-white text-slate-900">Agrovet & Farming</option>
+                      <option value="Electronics" className="bg-white text-slate-900">Electronics & Appliances</option>
+                      <option value="Wholesale Distributor" className="bg-white text-slate-900">Wholesale Distributor</option>
+                      <option value="General Retail" className="bg-white text-slate-900">General Retail</option>
                     </select>
                   </div>
 
@@ -3092,11 +3092,11 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                     <select
                       value={newBizPlan}
                       onChange={(e: any) => setNewBizPlan(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-hidden font-bold"
+                      className="w-full px-3 py-2 text-xs bg-white text-slate-900 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-hidden font-bold"
                     >
-                      <option value="starter">Starter (KES 2,500/mo - 2 Devices)</option>
-                      <option value="business">Business (KES 7,500/mo - 15 Devices)</option>
-                      <option value="enterprise">Enterprise (KES 25,000/mo - 200 Devices)</option>
+                      <option value="starter" className="bg-white text-slate-900">Starter (KES 2,500/mo - 2 Devices)</option>
+                      <option value="business" className="bg-white text-slate-900">Business (KES 7,500/mo - 15 Devices)</option>
+                      <option value="enterprise" className="bg-white text-slate-900">Enterprise (KES 25,000/mo - 200 Devices)</option>
                     </select>
                   </div>
                 </div>
@@ -3303,13 +3303,13 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                     <select
                       value={staffRole}
                       onChange={(e: any) => setStaffRole(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-hidden font-bold capitalize"
+                      className="w-full px-3 py-2 text-xs bg-white text-slate-900 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-hidden font-bold capitalize"
                     >
-                      <option value="cashier">Cashier (Sales & Receipting)</option>
-                      <option value="manager">Manager (Inventory, Staff, Reports)</option>
-                      <option value="supervisor">Supervisor (Sales & Approvals)</option>
-                      <option value="storekeeper">Storekeeper (Inventory & Stock)</option>
-                      <option value="accountant">Accountant (Reports & Ledger)</option>
+                      <option value="cashier" className="bg-white text-slate-900">Cashier (Sales & Receipting)</option>
+                      <option value="manager" className="bg-white text-slate-900">Manager (Inventory, Staff, Reports)</option>
+                      <option value="supervisor" className="bg-white text-slate-900">Supervisor (Sales & Approvals)</option>
+                      <option value="storekeeper" className="bg-white text-slate-900">Storekeeper (Inventory & Stock)</option>
+                      <option value="accountant" className="bg-white text-slate-900">Accountant (Reports & Ledger)</option>
                     </select>
                   </div>
                 </div>
@@ -3544,11 +3544,11 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                         else if (val === 'Business') setCryptoMaxDevices(15);
                         else if (val === 'Enterprise') setCryptoMaxDevices(200);
                       }}
-                      className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden font-bold"
+                      className="w-full px-3 py-2 text-xs bg-white text-slate-900 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden font-bold"
                     >
-                      <option value="Starter">Starter (2 Devices)</option>
-                      <option value="Business">Business (15 Devices)</option>
-                      <option value="Enterprise">Enterprise (200 Devices)</option>
+                      <option value="Starter" className="bg-white text-slate-900">Starter (2 Devices)</option>
+                      <option value="Business" className="bg-white text-slate-900">Business (15 Devices)</option>
+                      <option value="Enterprise" className="bg-white text-slate-900">Enterprise (200 Devices)</option>
                     </select>
                   </div>
 
@@ -3562,7 +3562,7 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                       max={500}
                       value={cryptoMaxDevices}
                       onChange={(e) => setCryptoMaxDevices(Number(e.target.value))}
-                      className="w-full px-3 py-2 text-xs font-mono font-bold border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 text-xs font-mono font-bold bg-white text-slate-900 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                     />
                   </div>
                 </div>
@@ -3575,12 +3575,12 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
                     <select
                       value={cryptoDurationDays}
                       onChange={(e) => setCryptoDurationDays(Number(e.target.value))}
-                      className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden font-semibold"
+                      className="w-full px-3 py-2 text-xs bg-white text-slate-900 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden font-semibold"
                     >
-                      <option value={30}>30 Days (Monthly)</option>
-                      <option value={90}>90 Days (Quarterly)</option>
-                      <option value={365}>365 Days (1 Year)</option>
-                      <option value={9999}>Perpetual (No Expiry)</option>
+                      <option value={30} className="bg-white text-slate-900">30 Days (Monthly)</option>
+                      <option value={90} className="bg-white text-slate-900">90 Days (Quarterly)</option>
+                      <option value={365} className="bg-white text-slate-900">365 Days (1 Year)</option>
+                      <option value={9999} className="bg-white text-slate-900">Perpetual (No Expiry)</option>
                     </select>
                   </div>
 
