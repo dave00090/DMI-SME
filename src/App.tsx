@@ -264,9 +264,9 @@ const MainContent: React.FC = () => {
         }}
       />
 
-      {/* Global Developer Console Modal */}
+      {/* Global Developer Console Modal - Strictly only for Master Developer David Migichi */}
       <DeveloperConsoleModal
-        isOpen={isDevConsoleOpen}
+        isOpen={isDevConsoleOpen && isMasterDeveloper}
         onClose={() => setIsDevConsoleOpen(false)}
       />
 

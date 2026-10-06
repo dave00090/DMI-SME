@@ -27,11 +27,12 @@ import {
 
 interface StoreSettingsModalProps {
   onClose: () => void;
+  initialTab?: 'profile' | 'daraja';
 }
 
-export const StoreSettingsModal: React.FC<StoreSettingsModalProps> = ({ onClose }) => {
+export const StoreSettingsModal: React.FC<StoreSettingsModalProps> = ({ onClose, initialTab = 'profile' }) => {
   const { storeProfile, updateStoreProfile, darajaConfig, updateDarajaConfig } = useBusiness();
-  const [activeTab, setActiveTab] = useState<'profile' | 'daraja'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'daraja'>(initialTab);
 
   // Store profile form state
   const [formData, setFormData] = useState<StoreProfile>({
