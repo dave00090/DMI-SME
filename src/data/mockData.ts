@@ -620,50 +620,7 @@ export const initialOutskirtsTelemetry: OutskirtsTelemetry = {
   fpsStatus: 60,
 };
 
-export const initialClientSoldSystems: ClientSoldSystem[] = [
-  {
-    id: 'CLI-001',
-    businessId: 'BUS-OCEAN-LIQ',
-    businessName: 'Ocean Liquor',
-    ownerName: 'James Kariuki',
-    ownerPhone: '0791895709',
-    ownerEmail: 'oceanliquor@gmail.com',
-    location: 'Mombasa Road, Nairobi',
-    package: 'Starter',
-    monthlyFee: 2500,
-    status: 'active',
-    licenseKey: 'DMI-CRYPT-OCEAN-STA-4829-91X2',
-    soldDate: '2025-11-10',
-    renewalDate: new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0],
-    lastPaymentDate: new Date(Date.now() - 15 * 86400000).toISOString().split('T')[0],
-    activeBranches: 1,
-    activeDevices: 2,
-    activeUsers: 3,
-    outskirtsTelemetry: initialOutskirtsTelemetry,
-    systemNotes: 'Ocean Liquor distribution & retail counter terminal.',
-  },
-  {
-    id: 'CLI-002',
-    businessId: 'BUS-8F42K91',
-    businessName: 'Apex Wholesale Hardware Ltd',
-    ownerName: 'Samuel Gitau',
-    ownerPhone: '254722894120',
-    ownerEmail: 'apex.hardware@gmail.com',
-    location: 'Kamiti Road, Nairobi',
-    package: 'Business',
-    monthlyFee: 7500,
-    status: 'active',
-    licenseKey: 'DMI-CRYPT-APEX-BUS-9912-74K1',
-    soldDate: '2025-08-14',
-    renewalDate: new Date(Date.now() + 20 * 86400000).toISOString().split('T')[0],
-    lastPaymentDate: new Date(Date.now() - 10 * 86400000).toISOString().split('T')[0],
-    activeBranches: 2,
-    activeDevices: 6,
-    activeUsers: 8,
-    outskirtsTelemetry: initialOutskirtsTelemetry,
-    systemNotes: 'Main branch + warehouse inventory sync active.',
-  },
-];
+export const initialClientSoldSystems: ClientSoldSystem[] = [];
 export const demoClientSoldSystems: ClientSoldSystem[] = [];
 export const initialDeveloperVouchers: DeveloperLicenseVoucher[] = [];
 export const initialDeveloperMaintenanceLogs: DeveloperMaintenanceAction[] = [];

@@ -82,7 +82,10 @@ const MainContent: React.FC = () => {
     if (isStarterPlan && (activeTab === 'branches' || activeTab === 'ibt' || activeTab === 'dispatch')) {
       setActiveTab('pos');
     }
-  }, [activeTab, isStarterPlan, setActiveTab]);
+    if (activeTab === 'platform-admin' && !isMasterDeveloper) {
+      setActiveTab('pos');
+    }
+  }, [activeTab, isStarterPlan, isMasterDeveloper, setActiveTab]);
 
   // Global developer keyboard shortcut: Ctrl+Shift+D or Alt+D to open Master Developer Console
   useEffect(() => {
@@ -272,9 +275,9 @@ const MainContent: React.FC = () => {
 
       {/* First-Time Access & On-Demand Package Selection Modal */}
       <PackageSelectionModal
-        isOpen={isPackageModalOpen || isFirstTimePackageRequired}
+        isOpen={isPackageModalOpen}
         onClose={() => setIsPackageModalOpen(false)}
-        canDismiss={!isFirstTimePackageRequired}
+        canDismiss={true}
       />
 
       {/* Floating Action Button: Book Open */}

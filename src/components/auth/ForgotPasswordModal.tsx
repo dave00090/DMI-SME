@@ -231,25 +231,6 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
                 </p>
               </div>
 
-              {/* Demo test helper banner */}
-              {mockOtp && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-xs">
-                  <div className="text-amber-800">
-                    <span className="font-bold">Simulated Safaricom/Email Gateway OTP: </span>
-                    <span className="font-mono font-bold tracking-widest text-amber-900 text-sm">
-                      {mockOtp}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setEnteredOtp(mockOtp)}
-                    className="text-[11px] bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold px-2 py-1 rounded-lg transition"
-                  >
-                    Auto-Fill
-                  </button>
-                </div>
-              )}
-
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 text-center">
                   Verification Code

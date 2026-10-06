@@ -939,9 +939,9 @@ export const POS: React.FC = () => {
               </span>
             </button>
             <span className="text-slate-400">|</span>
-            <span className="font-semibold text-slate-700">Register Outlet:</span>
+            <span className="font-semibold text-slate-700">Counter / Branch:</span>
             <span className="px-2.5 py-0.5 rounded-full font-bold bg-blue-100 text-blue-800">
-              {activeBranch?.name || 'All Locations (Kangemi Main)'}
+              {activeBranch?.name || 'Main Branch'}
             </span>
             <span className="text-slate-400">|</span>
             <span className="text-[11px] text-slate-500 font-mono">

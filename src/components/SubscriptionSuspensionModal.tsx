@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldCheck,
   AlertTriangle,
@@ -60,10 +60,22 @@ export const SubscriptionSuspensionModal: React.FC<SubscriptionSuspensionModalPr
   const [graceReason, setGraceReason] = useState<string>('Awaiting bank transfer clearance');
   const [isSubmittingGrace, setIsSubmittingGrace] = useState(false);
 
+  const sseRef = useRef<EventSource | null>(null);
+  const pollTimerRef = useRef<any>(null);
+  const countdownTimerRef = useRef<any>(null);
+
+  useEffect(() => {
+    return () => {
+      if (sseRef.current) sseRef.current.close();
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+    };
+  }, []);
+
   if (!isOpen) return null;
 
-  // Trigger STK Push to Till 5331774
-  const handleSendStk = () => {
+  // Trigger Live STK Push to Till 5331774
+  const handleSendStk = async () => {
     setErrorMsg(null);
     setSuccessMsg(null);
 
@@ -75,12 +87,13 @@ export const SubscriptionSuspensionModal: React.FC<SubscriptionSuspensionModalPr
 
     setIsStkPending(true);
     setStkSent(true);
-    setStkCountdown(30);
+    setStkCountdown(60);
 
-    const timer = setInterval(() => {
+    if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+    countdownTimerRef.current = setInterval(() => {
       setStkCountdown((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
+          clearInterval(countdownTimerRef.current);
           setIsStkPending(false);
           return 0;
         }
@@ -88,13 +101,102 @@ export const SubscriptionSuspensionModal: React.FC<SubscriptionSuspensionModalPr
       });
     }, 1000);
 
-    setTimeout(() => {
-      if (!mpesaCode) {
-        const randCode = 'SKH' + Math.floor(1000000 + Math.random() * 9000000).toString();
-        setMpesaCode(randCode);
-        setSuccessMsg(`STK Prompt acknowledged on device! Auto-captured M-Pesa receipt: ${randCode}`);
+    try {
+      const res = await fetch('/api/saas/billing/mpesa-stk-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: cleanPhone,
+          amount: planAmount,
+          planCode: (subscription?.tier || 'Starter').toLowerCase(),
+          businessId: businessIdentity?.businessId || 'BUS-8F42K91',
+          businessName: businessIdentity?.name || 'DMi Business Store',
+          accountReference: '5331774',
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.checkoutRequestId) {
+        setSuccessMsg(data.customerMessage || `STK Prompt sent to ${cleanPhone}. Please enter your M-Pesa PIN on handset.`);
+
+        // Real-time Safaricom SSE callback stream
+        try {
+          if (sseRef.current) sseRef.current.close();
+          const sse = new EventSource(`/api/mpesa/stream?checkoutRequestId=${encodeURIComponent(data.checkoutRequestId)}`);
+          sseRef.current = sse;
+          sse.onmessage = (event) => {
+            try {
+              const eventData = JSON.parse(event.data);
+              if (eventData.type === 'stk_callback') {
+                if (eventData.resultCode === 0 && eventData.receiptNumber) {
+                  setMpesaCode(eventData.receiptNumber);
+                  setSuccessMsg(`✓ M-Pesa payment confirmed! Receipt: ${eventData.receiptNumber}. Unlocking terminal...`);
+                  setIsStkPending(false);
+                  sse.close();
+                  confirmSubscriptionPayment({
+                    mpesaCode: eventData.receiptNumber,
+                    amount: planAmount,
+                    tier: subscription.tier,
+                    phone: cleanPhone,
+                    notes: `Subscription renewal via Till 5331774 (${planName} Plan)`,
+                  });
+                  setTimeout(() => {
+                    if (onClose) onClose();
+                  }, 1200);
+                } else if (eventData.resultCode !== undefined && eventData.resultCode !== 0) {
+                  setErrorMsg(`Safaricom: ${eventData.resultDesc || 'Payment cancelled or timed out.'}`);
+                  setIsStkPending(false);
+                  sse.close();
+                }
+              }
+            } catch (err) {
+              console.error('SSE parse error:', err);
+            }
+          };
+        } catch (err) {
+          console.error('SSE connection error:', err);
+        }
+
+        // Status poll fallback
+        if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+        pollTimerRef.current = setInterval(async () => {
+          try {
+            const qRes = await fetch(`/api/saas/billing/stk-query?checkoutRequestId=${encodeURIComponent(data.checkoutRequestId)}`);
+            if (qRes.ok) {
+              const qData = await qRes.json();
+              const rcpt = qData.mpesaReceipt || qData.receiptNumber;
+              if (qData.success && (qData.status === 'completed' || rcpt)) {
+                if (rcpt) {
+                  setMpesaCode(rcpt);
+                  clearInterval(pollTimerRef.current);
+                  if (sseRef.current) sseRef.current.close();
+                  setIsStkPending(false);
+                  confirmSubscriptionPayment({
+                    mpesaCode: rcpt,
+                    amount: planAmount,
+                    tier: subscription.tier,
+                    phone: cleanPhone,
+                    notes: `Subscription renewal via Till 5331774 (${planName} Plan)`,
+                  });
+                  setSuccessMsg(`✓ M-Pesa payment confirmed! Receipt: ${rcpt}. Unlocking terminal...`);
+                  setTimeout(() => {
+                    if (onClose) onClose();
+                  }, 1200);
+                }
+              }
+            }
+          } catch (e) {
+            // ignore
+          }
+        }, 3500);
+      } else {
+        setErrorMsg(data.error || 'Failed to dispatch Safaricom STK Push to Till 5331774.');
+        setIsStkPending(false);
       }
-    }, 7000);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Network error triggering STK Push.');
+      setIsStkPending(false);
+    }
   };
 
   // Verify payment and unlock

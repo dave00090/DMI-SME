@@ -88,6 +88,7 @@ import {
   initialOutskirtsTelemetry,
   initialDeveloperMaintenanceLogs,
 } from '../data/mockData';
+import { authenticateWithBiometrics, registerDeviceBiometrics } from '../lib/webauthn';
 
 interface BusinessContextType {
   activeTab: string;
@@ -5054,8 +5055,14 @@ _Generated via DMi Business OS_`;
       target = currentEmployee.status === 'active' ? currentEmployee : employees[0];
     }
 
-    // Brief delay to simulate hardware Touch ID / Face ID / Fingerprint sensor scanning
-    await new Promise((res) => setTimeout(res, 650));
+    // Call live hardware WebAuthn biometrics (Touch ID / Face ID / Windows Hello / Android Biometrics)
+    const bioResult = await authenticateWithBiometrics(target?.id);
+    if (!bioResult.success) {
+      return {
+        success: false,
+        message: bioResult.message,
+      };
+    }
 
     setCurrentEmployee(target);
     setIsSessionAuthenticated(true);
@@ -5069,7 +5076,7 @@ _Generated via DMi Business OS_`;
       branchId: target.branchId,
       branchName: target.branchName,
       action: 'permission_change',
-      targetDescription: `Biometric terminal unlock: ${target.name} authenticated via device biometrics (Fingerprint / Touch ID)`,
+      targetDescription: `Live hardware biometric unlock: ${target.name} authenticated via device sensor (${bioResult.credentialId ? `Credential: ${bioResult.credentialId.slice(0, 8)}...` : 'Device Platform Authenticator'})`,
       newValue: `Active session: ${target.name}`,
     });
     return {

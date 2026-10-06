@@ -69,8 +69,8 @@ export const LoginDashboard: React.FC = () => {
   // Route Scope: 'business' (/login) vs 'platform' (/admin/login)
   const [loginScope, setLoginScope] = useState<'business' | 'platform'>('business');
 
-  // Auth Modes: 'credentials' | 'pin' | 'superadmin' | 'biometrics'
-  const [authMode, setAuthMode] = useState<'credentials' | 'pin' | 'superadmin' | 'biometrics'>('credentials');
+  // Auth Modes: ONLY 'credentials' | 'biometrics' (and 'superadmin' on platform route)
+  const [authMode, setAuthMode] = useState<'credentials' | 'biometrics' | 'superadmin'>('credentials');
   const [superAdminEmail, setSuperAdminEmail] = useState('migichidave09@gmail.com');
   const [superAdminPin, setSuperAdminPin] = useState('8124');
 
@@ -85,7 +85,6 @@ export const LoginDashboard: React.FC = () => {
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [twoFactorChannel, setTwoFactorChannel] = useState<'phone' | 'email'>('phone');
   const [twoFactorDestination, setTwoFactorDestination] = useState<string>('');
-  const [twoFactorOtpPreview, setTwoFactorOtpPreview] = useState<string>('');
   const [resendCountdown, setResendCountdown] = useState<number>(0);
 
   // Resend countdown timer
@@ -95,13 +94,6 @@ export const LoginDashboard: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [resendCountdown]);
-
-  // Cashier PIN pad state
-  const [selectedStaff, setSelectedStaff] = useState<Employee | null>(() => {
-    return employees.find((e) => e.role === 'cashier') || employees[0] || null;
-  });
-  const [pin, setPin] = useState('');
-  const [showPin, setShowPin] = useState(false);
 
   // Biometrics scanning state
   const [isScanningBiometrics, setIsScanningBiometrics] = useState(false);
@@ -153,7 +145,6 @@ export const LoginDashboard: React.FC = () => {
         const otpRes = sendTwoFactorOtp(result.employeeId, preferredChannel);
         if (otpRes.success) {
           setTwoFactorDestination(otpRes.maskedDestination || '');
-          setTwoFactorOtpPreview(otpRes.mockOtp || '');
           setResendCountdown(45);
           setSuccess(otpRes.message);
         } else {
@@ -175,7 +166,6 @@ export const LoginDashboard: React.FC = () => {
     const otpRes = sendTwoFactorOtp(pendingEmployeeId, channel);
     if (otpRes.success) {
       setTwoFactorDestination(otpRes.maskedDestination || '');
-      setTwoFactorOtpPreview(otpRes.mockOtp || '');
       setResendCountdown(45);
       setSuccess(otpRes.message);
     } else {
@@ -243,81 +233,27 @@ export const LoginDashboard: React.FC = () => {
     }
   };
 
-  // Handle PIN Pad Keypad
-  const handlePinDigit = (digit: string) => {
-    if (pin.length < 4) {
-      const nextPin = pin + digit;
-      setPin(nextPin);
-      setError(null);
-
-      if (nextPin.length === 4) {
-        handlePinSubmit(nextPin);
-      }
-    }
-  };
-
-  const handlePinBackspace = () => {
-    setPin((prev) => prev.slice(0, -1));
-    setError(null);
-  };
-
-  const handlePinSubmit = (inputPin?: string) => {
-    const pinToSubmit = inputPin || pin;
-    if (pinToSubmit.length !== 4) {
-      setError('Please enter your complete 4-digit PIN.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    const res = switchEmployeeByPin(pinToSubmit);
-    setIsSubmitting(false);
-
-    if (res.success) {
-      setSuccess(res.message);
-      setPin('');
-      // Super admin access is strictly reserved for username migichidave09@gmail.com with pin 8124
-      if (pinToSubmit === '8124' && res.employee?.email?.toLowerCase() === 'migichidave09@gmail.com') {
-        sessionStorage.setItem('dmi_superadmin_auth', 'true');
-        setActiveTab('platform-admin');
-      } else {
-        sessionStorage.removeItem('dmi_superadmin_auth');
-      }
-    } else {
-      setError(res.message);
-      setPin('');
-    }
-  };
-
-  // Handle Device Biometrics
+  // Handle Device Biometrics (Live WebAuthn Hardware Integration)
   const handleBiometricLogin = async () => {
     setError(null);
     setIsScanningBiometrics(true);
-    setBiometricFeedback('Communicating with local device biometric sensor (Touch ID / Fingerprint)...');
+    setBiometricFeedback('Calling hardware sensor (Touch ID / Face ID / Windows Hello / Android Biometrics)...');
 
     try {
-      const res = await loginWithBiometrics(selectedStaff?.id);
+      const res = await loginWithBiometrics();
       if (res.success) {
         setBiometricFeedback(res.message);
         setSuccess(res.message);
       } else {
         setError(res.message);
-        setBiometricFeedback(null);
+        setBiometricFeedback(res.message);
       }
     } catch (err: any) {
-      setError('Biometric authentication failed. Please use your username or PIN.');
+      setError(err?.message || 'Biometric authentication failed. Please enter your username and password.');
       setBiometricFeedback(null);
     } finally {
       setIsScanningBiometrics(false);
     }
-  };
-
-  // Quick Demo fill
-  const handleFillDemo = (emp: Employee) => {
-    setIdentifier(emp?.username || emp?.email || emp?.name || '');
-    setPassword(emp?.password || emp?.pin || '');
-    setSelectedStaff(emp);
-    setPin(emp?.pin || '');
-    setError(null);
   };
 
   return (
@@ -420,68 +356,56 @@ export const LoginDashboard: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-bold text-white tracking-tight">Terminal Authentication</h2>
-                <p className="text-xs text-slate-400">Select your preferred login method</p>
+                <p className="text-xs text-slate-400">Select your preferred login method (User Credentials or Live Biometrics)</p>
               </div>
-              <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800/80 border border-slate-700/60 text-[11px] text-slate-400">
-                <Lock className="w-3 h-3 text-emerald-400" />
-                <span>Audit Camera Active</span>
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsPackageModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition cursor-pointer shadow-2xs"
+                title="Choose Package & Pay via Till 5331774"
+              >
+                <Store className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Subscription Packages</span>
+              </button>
             </div>
 
-                {/* Mode Tabs */}
-                <div className="grid grid-cols-3 p-1 rounded-xl bg-slate-950/70 border border-slate-800 text-xs font-semibold gap-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAuthMode('credentials');
-                      setError(null);
-                      setSuccess(null);
-                    }}
-                    className={`py-2 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
-                      authMode === 'credentials'
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                    }`}
-                  >
-                    <KeyRound className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">User & PW</span>
-                  </button>
+            {/* Mode Tabs: STRICTLY User Credentials and Live Biometrics */}
+            <div className="grid grid-cols-2 p-1 rounded-xl bg-slate-950/70 border border-slate-800 text-xs font-semibold gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('credentials');
+                  setError(null);
+                  setSuccess(null);
+                }}
+                className={`py-2 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
+                  authMode === 'credentials'
+                    ? 'bg-blue-600 text-white shadow-sm font-bold'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                <KeyRound className="w-4 h-4 shrink-0" />
+                <span>User Credentials</span>
+              </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAuthMode('pin');
-                      setError(null);
-                      setSuccess(null);
-                    }}
-                    className={`py-2 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
-                      authMode === 'pin'
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                    }`}
-                  >
-                    <Shield className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">Cashier PIN</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAuthMode('biometrics');
-                      setError(null);
-                      setSuccess(null);
-                    }}
-                    className={`py-2 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
-                      authMode === 'biometrics'
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                    }`}
-                  >
-                    <Fingerprint className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">Biometrics</span>
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('biometrics');
+                  setError(null);
+                  setSuccess(null);
+                }}
+                className={`py-2 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
+                  authMode === 'biometrics'
+                    ? 'bg-blue-600 text-white shadow-sm font-bold'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                <Fingerprint className="w-4 h-4 shrink-0" />
+                <span>Biometric Auth</span>
+              </button>
+            </div>
+          </div>
 
           {/* Feedback Banners */}
           {error && (
@@ -622,21 +546,6 @@ export const LoginDashboard: React.FC = () => {
                         DIRECT OTP
                       </span>
                     </div>
-
-                    {twoFactorOtpPreview && (
-                      <div className="pt-1.5 border-t border-blue-900/60 flex items-center justify-between">
-                        <span className="text-slate-300 text-[11px]">
-                          Received Code: <strong className="font-mono text-amber-300 text-sm tracking-widest">{twoFactorOtpPreview}</strong>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setTwoFactorCode(twoFactorOtpPreview)}
-                          className="bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition cursor-pointer"
-                        >
-                          Auto-Fill
-                        </button>
-                      </div>
-                    )}
                   </div>
 
                   <div>
@@ -676,7 +585,6 @@ export const LoginDashboard: React.FC = () => {
                       onClick={() => {
                         setRequires2FA(false);
                         setTwoFactorCode('');
-                        setTwoFactorOtpPreview('');
                       }}
                       className="w-1/3 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition cursor-pointer"
                     >
@@ -696,125 +604,7 @@ export const LoginDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 2: CASHIER FAST PIN PAD */}
-          {authMode === 'pin' && (
-            <div className="p-6 flex flex-col md:flex-row gap-6">
-              {/* Left Column: Quick Persona Switch */}
-              <div className="w-full md:w-1/2 space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                  Select Staff Member
-                </label>
-                {employees.map((emp) => {
-                  const isSelected = selectedStaff?.id === emp.id;
-                  return (
-                    <div
-                      key={emp.id}
-                      onClick={() => {
-                        setSelectedStaff(emp);
-                        setPin('');
-                        setError(null);
-                      }}
-                      className={`p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                        isSelected
-                          ? 'bg-blue-600/20 border-blue-500 ring-1 ring-blue-500/40 text-white'
-                          : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 text-slate-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-white">
-                          {(emp?.name || 'Staff')
-                            .split(' ')
-                            .map((n) => n[0])
-                            .join('')
-                            .slice(0, 2)}
-                        </div>
-                        <div>
-                          <div className="text-xs font-bold leading-tight">{emp?.name || 'Staff Member'}</div>
-                          <div className="text-[10px] text-slate-400 capitalize">{emp?.role || 'staff'}</div>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">
-                        {emp?.pin || '••••'}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Right Column: 4-digit PIN Pad with Eye symbol */}
-              <div className="w-full md:w-1/2 flex flex-col items-center">
-                <div className="text-center mb-3">
-                  <span className="text-xs text-slate-400">
-                    PIN for <strong className="text-white">{selectedStaff?.name || 'Staff'}</strong>
-                  </span>
-
-                  {/* 4-digit PIN dots with Eye toggle */}
-                  <div className="flex items-center justify-center gap-2 mt-2">
-                    {[0, 1, 2, 3].map((idx) => {
-                      const filled = pin.length > idx;
-                      return (
-                        <div
-                          key={idx}
-                          className={`w-9 h-10 rounded-xl flex items-center justify-center text-base font-bold font-mono border-2 transition-all ${
-                            filled
-                              ? 'border-blue-500 bg-blue-600/20 text-blue-300'
-                              : 'border-slate-700 bg-slate-950 text-slate-600'
-                          }`}
-                        >
-                          {filled ? (showPin ? pin[idx] : '•') : ''}
-                        </div>
-                      );
-                    })}
-                    <button
-                      type="button"
-                      onClick={() => setShowPin(!showPin)}
-                      className="p-1.5 text-slate-400 hover:text-slate-200 rounded-lg transition"
-                      title={showPin ? 'Hide PIN' : 'Show PIN'}
-                    >
-                      {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Keypad */}
-                <div className="grid grid-cols-3 gap-1.5 w-full max-w-[200px]">
-                  {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
-                    <button
-                      key={digit}
-                      type="button"
-                      onClick={() => handlePinDigit(digit)}
-                      className="h-10 text-base font-bold bg-slate-950 hover:bg-blue-600 hover:text-white border border-slate-800 rounded-lg text-slate-200 transition-colors shadow-2xs"
-                    >
-                      {digit}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => setPin('')}
-                    className="h-10 text-[11px] font-semibold bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-400 transition"
-                  >
-                    Clear
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handlePinDigit('0')}
-                    className="h-10 text-base font-bold bg-slate-950 hover:bg-blue-600 hover:text-white border border-slate-800 rounded-lg text-slate-200"
-                  >
-                    0
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handlePinBackspace}
-                    className="h-10 text-xs font-bold bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-400"
-                  >
-                    ⌫
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: DEVICE BIOMETRICS (TOUCH ID / FINGERPRINT) */}
+          {/* TAB 2: DEVICE BIOMETRICS (TOUCH ID / FINGERPRINT) */}
           {authMode === 'biometrics' && (
             <div className="p-8 text-center space-y-5">
               <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
@@ -909,11 +699,11 @@ export const LoginDashboard: React.FC = () => {
         onSuccess={() => setIsRegisterModalOpen(false)}
       />
 
-      {/* Package Selection Modal */}
+      {/* Package Selection Modal - Triggered when user clicks the Subscription & Packages button */}
       <PackageSelectionModal
-        isOpen={isPackageModalOpen || isFirstTimePackageRequired}
+        isOpen={isPackageModalOpen}
         onClose={() => setIsPackageModalOpen(false)}
-        canDismiss={!isFirstTimePackageRequired}
+        canDismiss={true}
       />
     </div>
   );
