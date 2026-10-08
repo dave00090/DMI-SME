@@ -6,15 +6,6 @@ export interface IndustryDefinition {
   description: string;
   categories: string[];
   defaultUnit: string;
-  sampleProducts: {
-    name: string;
-    category: string;
-    costPrice: number;
-    sellingPrice: number;
-    unit: string;
-    stockQuantity: number;
-    isService?: boolean;
-  }[];
 }
 
 export const INDUSTRY_TYPES: IndustryDefinition[] = [
@@ -36,11 +27,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Hardware & Security',
       'General Retail',
     ],
-    sampleProducts: [
-      { name: 'Rhino Cement 50kg (32.5R)', category: 'Cement & Masonry', costPrice: 650, sellingPrice: 750, unit: 'bag', stockQuantity: 100 },
-      { name: 'Wire Nails 3-inch (50kg Box)', category: 'Fasteners & Nails', costPrice: 4200, sellingPrice: 5000, unit: 'box', stockQuantity: 15 },
-      { name: 'Crown Super Cover White 20L', category: 'Paints & Finishes', costPrice: 3100, sellingPrice: 3750, unit: 'bucket', stockQuantity: 20 },
-    ],
   },
   {
     id: 'pharmacy',
@@ -58,11 +44,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Baby & Mother Care',
       'Medical Devices & Diagnostics',
       'Surgical & Sanitizers',
-    ],
-    sampleProducts: [
-      { name: 'Panadol Extra Tablets (100s)', category: 'OTC Pain & Cold', costPrice: 450, sellingPrice: 600, unit: 'pack', stockQuantity: 40 },
-      { name: 'Amoxicillin 500mg Capsules (10x10)', category: 'Antibiotics & Antimalarials', costPrice: 380, sellingPrice: 550, unit: 'box', stockQuantity: 30 },
-      { name: 'Digital Blood Pressure Monitor', category: 'Medical Devices & Diagnostics', costPrice: 2800, sellingPrice: 3800, unit: 'piece', stockQuantity: 8 },
     ],
   },
   {
@@ -82,11 +63,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Cosmetics & Makeup',
       'Salon Accessories',
     ],
-    sampleProducts: [
-      { name: 'Executive Haircut & Beard Trim', category: 'Hair Styling & Cuts (Service)', costPrice: 0, sellingPrice: 500, unit: 'service', stockQuantity: 999999, isService: true },
-      { name: 'Knotless Braids Medium', category: 'Braiding & Weaving (Service)', costPrice: 0, sellingPrice: 2500, unit: 'service', stockQuantity: 999999, isService: true },
-      { name: 'Miadi Olive Oil Hair Treatment 500ml', category: 'Hair Oils & Lotions', costPrice: 350, sellingPrice: 500, unit: 'bottle', stockQuantity: 25 },
-    ],
   },
   {
     id: 'bakery',
@@ -103,11 +79,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Baking Ingredients & Flours',
       'Icing & Cake Decorations',
       'Beverages & Milk',
-    ],
-    sampleProducts: [
-      { name: 'White Bread Sliced 800g', category: 'Fresh Breads & Loaves', costPrice: 70, sellingPrice: 95, unit: 'loaf', stockQuantity: 60 },
-      { name: 'Black Forest Cake 1kg', category: 'Cakes & Custom Birthday Cakes', costPrice: 1100, sellingPrice: 1800, unit: 'piece', stockQuantity: 10 },
-      { name: 'Beef Samosa Fresh Crispy', category: 'Mandazi & Samosas', costPrice: 25, sellingPrice: 50, unit: 'piece', stockQuantity: 150 },
     ],
   },
   {
@@ -127,11 +98,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Household Essentials',
       'Canned & Packaged Goods',
     ],
-    sampleProducts: [
-      { name: 'Pembe Maize Flour 2kg', category: 'Dry Foods & Flours', costPrice: 160, sellingPrice: 195, unit: 'packet', stockQuantity: 80 },
-      { name: 'Rina Vegetable Oil 3L', category: 'Cooking Oils & Spices', costPrice: 650, sellingPrice: 780, unit: 'jerrycan', stockQuantity: 40 },
-      { name: 'Ariel Auto Washing Powder 1kg', category: 'Toiletries & Detergents', costPrice: 280, sellingPrice: 350, unit: 'packet', stockQuantity: 50 },
-    ],
   },
   {
     id: 'boutique',
@@ -149,11 +115,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Jewelry & Watches',
       'Perfumes & Scents',
     ],
-    sampleProducts: [
-      { name: 'Men\'s Slim Fit Chino Trousers', category: 'Men\'s Wear', costPrice: 1200, sellingPrice: 1800, unit: 'piece', stockQuantity: 30 },
-      { name: 'Women\'s Floral Maxi Dress', category: 'Women\'s Fashion', costPrice: 1400, sellingPrice: 2200, unit: 'piece', stockQuantity: 25 },
-      { name: 'Ladies Leather Handbag Classic', category: 'Handbags & Wallets', costPrice: 1800, sellingPrice: 2800, unit: 'piece', stockQuantity: 15 },
-    ],
   },
   {
     id: 'electronics',
@@ -170,11 +131,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Screen Protectors & Covers',
       'Networking & Routers',
       'Phone Repair & Screen Fix (Service)',
-    ],
-    sampleProducts: [
-      { name: 'Type-C Fast Charging Cable 2M', category: 'Chargers, Cables & Adapters', costPrice: 150, sellingPrice: 350, unit: 'piece', stockQuantity: 60 },
-      { name: 'Oraimo 20000mAh Powerbank', category: 'Chargers, Cables & Adapters', costPrice: 1800, sellingPrice: 2500, unit: 'piece', stockQuantity: 20 },
-      { name: 'Smartphone Screen Replacement (Service)', category: 'Phone Repair & Screen Fix (Service)', costPrice: 1000, sellingPrice: 2500, unit: 'service', stockQuantity: 999999, isService: true },
     ],
   },
   {
@@ -194,11 +150,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Tires & Wheel Alignment',
       'Filters & Spark Plugs',
     ],
-    sampleProducts: [
-      { name: 'Total Quartz 5000 15W40 (5L)', category: 'Engine Oils & Lubricants', costPrice: 2800, sellingPrice: 3500, unit: 'gallon', stockQuantity: 25 },
-      { name: 'Toyota Probox Front Brake Pads', category: 'Brakes, Pads & Discs', costPrice: 1200, sellingPrice: 1800, unit: 'set', stockQuantity: 15 },
-      { name: 'Full Engine Service & Diagnostic', category: 'Vehicle Diagnostic (Service)', costPrice: 0, sellingPrice: 3500, unit: 'service', stockQuantity: 999999, isService: true },
-    ],
   },
   {
     id: 'restaurant',
@@ -215,11 +166,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Pastries & Desserts',
       'Meat & Grills',
       'Catering & Buffet (Service)',
-    ],
-    sampleProducts: [
-      { name: 'Ugali Beef & Sukuma Wiki', category: 'Hot Meals & Traditional Dishes', costPrice: 140, sellingPrice: 280, unit: 'plate', stockQuantity: 100 },
-      { name: 'Chicken & Chips Combo (Quarter)', category: 'Fast Food & Burgers', costPrice: 220, sellingPrice: 420, unit: 'plate', stockQuantity: 80 },
-      { name: 'Special African Spiced Chai', category: 'Hot Beverages (Coffee & Tea)', costPrice: 25, sellingPrice: 80, unit: 'cup', stockQuantity: 200 },
     ],
   },
   {
@@ -238,11 +184,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Bones & Broth Cuts',
       'Marinated & BBQ Grills',
     ],
-    sampleProducts: [
-      { name: 'Prime Beef Steak (1kg)', category: 'Fresh Beef & Steak', costPrice: 520, sellingPrice: 650, unit: 'kg', stockQuantity: 60 },
-      { name: 'Fresh Goat Ribs (Mbuzi Choma 1kg)', category: 'Goat Meat (Mbuzi)', costPrice: 680, sellingPrice: 850, unit: 'kg', stockQuantity: 40 },
-      { name: 'Farmer\'s Choice Beef Sausages (1kg)', category: 'Sausages & Smokies', costPrice: 460, sellingPrice: 580, unit: 'packet', stockQuantity: 25 },
-    ],
   },
   {
     id: 'agrovet',
@@ -259,11 +200,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Farm Tools & Sprayers',
       'Pet Foods & Grooming',
       'Dewormers & Vaccines',
-    ],
-    sampleProducts: [
-      { name: 'Dairy Meal Supreme 50kg', category: 'Dairy & Cattle Feeds', costPrice: 2400, sellingPrice: 2850, unit: 'bag', stockQuantity: 50 },
-      { name: 'DAP Planting Fertilizer 50kg', category: 'Fertilizers & Seedlings', costPrice: 3200, sellingPrice: 3750, unit: 'bag', stockQuantity: 40 },
-      { name: 'Thunder Insecticide 100ml', category: 'Crop Pesticides & Fungicides', costPrice: 420, sellingPrice: 550, unit: 'bottle', stockQuantity: 30 },
     ],
   },
   {
@@ -282,11 +218,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Envelopes & Filing',
       'Printing & Laminating (Service)',
     ],
-    sampleProducts: [
-      { name: 'JKF Primary Maths Book 4', category: 'School Textbooks & Set Books', costPrice: 450, sellingPrice: 600, unit: 'book', stockQuantity: 35 },
-      { name: 'Kasuku A4 200 Pages Ruled Book', category: 'Exercise Books & Notebooks', costPrice: 90, sellingPrice: 130, unit: 'piece', stockQuantity: 150 },
-      { name: 'Rotatrim A4 Printing Paper (Ream)', category: 'Office Paper & Reams', costPrice: 580, sellingPrice: 750, unit: 'ream', stockQuantity: 40 },
-    ],
   },
   {
     id: 'liquor',
@@ -303,11 +234,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Brandy & Cognac',
       'Mixers & Soft Drinks',
       'Ice & Party Accessories',
-    ],
-    sampleProducts: [
-      { name: 'Johnnie Walker Red Label 750ml', category: 'Whiskies & Bourbons', costPrice: 1800, sellingPrice: 2300, unit: 'bottle', stockQuantity: 24 },
-      { name: 'Tusker Lager 500ml Can', category: 'Local & Imported Beers', costPrice: 190, sellingPrice: 250, unit: 'can', stockQuantity: 96 },
-      { name: 'Gordon\'s London Dry Gin 750ml', category: 'Vodkas & Gins', costPrice: 1400, sellingPrice: 1850, unit: 'bottle', stockQuantity: 20 },
     ],
   },
   {
@@ -326,11 +252,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Soaps & Scrubs',
       'Beauty Tools & Brushes',
     ],
-    sampleProducts: [
-      { name: 'Garnier Vitamin C Serum 30ml', category: 'Skincare & Sunscreen', costPrice: 950, sellingPrice: 1350, unit: 'bottle', stockQuantity: 30 },
-      { name: 'Maybelline Fit Me Matte Foundation', category: 'Makeup & Foundations', costPrice: 1100, sellingPrice: 1600, unit: 'bottle', stockQuantity: 25 },
-      { name: 'Darling Darling Yaki Braid (Pack)', category: 'Hair Extensions & Wigs', costPrice: 180, sellingPrice: 280, unit: 'pack', stockQuantity: 70 },
-    ],
   },
   {
     id: 'furniture',
@@ -347,11 +268,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Mattresses & Foam',
       'Wood Varnish & Polish',
       'Custom Carpentry (Service)',
-    ],
-    sampleProducts: [
-      { name: 'Executive 5x6 Mahogany Bed Frame', category: 'Beds & Bedroom Sets', costPrice: 18000, sellingPrice: 26000, unit: 'set', stockQuantity: 4 },
-      { name: 'Ergonomic Mesh Office Swivel Chair', category: 'Office Desks & Ergonomic Chairs', costPrice: 7500, sellingPrice: 11000, unit: 'piece', stockQuantity: 8 },
-      { name: 'Custom Fitted Wardrobe (Per Meter)', category: 'Custom Carpentry (Service)', costPrice: 0, sellingPrice: 8500, unit: 'service', stockQuantity: 999999, isService: true },
     ],
   },
   {
@@ -370,11 +286,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Circuit Breakers & Distribution Boxes',
       'Generators & Backup Power',
     ],
-    sampleProducts: [
-      { name: 'Solar Monocrystalline Panel 350W', category: 'Solar Panels & Inverters', costPrice: 11500, sellingPrice: 14500, unit: 'piece', stockQuantity: 12 },
-      { name: 'Solar Street Flood Light 200W + Remote', category: 'Outdoor Floodlights & Security Lights', costPrice: 2800, sellingPrice: 4200, unit: 'piece', stockQuantity: 20 },
-      { name: 'East African Cables 1.5mm Single Core', category: 'Electrical Cables & Conduits', costPrice: 3200, sellingPrice: 3900, unit: 'roll', stockQuantity: 15 },
-    ],
   },
   {
     id: 'plumbing',
@@ -391,11 +302,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Toilet Suites & Sanitaryware',
       'Water Filters & Purifiers',
       'Plumbing Installation (Service)',
-    ],
-    sampleProducts: [
-      { name: 'Roto Water Storage Tank 1000L', category: 'Water Tanks & Storage', costPrice: 9500, sellingPrice: 12500, unit: 'tank', stockQuantity: 6 },
-      { name: 'PPR Pipe 32mm PN20 (4m length)', category: 'PVC & PPR Pipes', costPrice: 380, sellingPrice: 520, unit: 'piece', stockQuantity: 50 },
-      { name: 'Brass Kitchen Sink Mixer Tap Heavy', category: 'Taps, Faucets & Sinks', costPrice: 1600, sellingPrice: 2400, unit: 'piece', stockQuantity: 18 },
     ],
   },
   {
@@ -414,11 +320,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Cylinder Accessories',
       'Home Delivery (Service)',
     ],
-    sampleProducts: [
-      { name: 'Pro Gas 6kg Refill Exchange', category: 'Gas Refills & Exchange', costPrice: 1100, sellingPrice: 1350, unit: 'cylinder', stockQuantity: 40 },
-      { name: 'K-Gas 13kg Refill Exchange', category: 'Gas Refills & Exchange', costPrice: 2450, sellingPrice: 2850, unit: 'cylinder', stockQuantity: 30 },
-      { name: 'Heavy Duty Gas Hose & 2 Clips (2m)', category: 'Gas Regulators & Hoses', costPrice: 250, sellingPrice: 450, unit: 'piece', stockQuantity: 35 },
-    ],
   },
   {
     id: 'motorcycle',
@@ -435,11 +336,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Helmets & Safety Jackets',
       '2T & 4T Engine Lubricants',
       'Boda Boda Repair (Service)',
-    ],
-    sampleProducts: [
-      { name: 'Boxer BM150 Heavy Duty Tyre 3.00-17', category: 'Tyres & Tubes', costPrice: 1900, sellingPrice: 2600, unit: 'piece', stockQuantity: 20 },
-      { name: 'Castrol Activ 4T 20W50 Motorcycle Oil 1L', category: '2T & 4T Engine Lubricants', costPrice: 580, sellingPrice: 750, unit: 'bottle', stockQuantity: 40 },
-      { name: 'Motorcycle Drive Chain 428H Heavy Duty', category: 'Chains & Sprockets', costPrice: 650, sellingPrice: 950, unit: 'piece', stockQuantity: 25 },
     ],
   },
   {
@@ -458,11 +354,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Stationery & Envelopes',
       'Internet Browsing & Gaming (Service)',
     ],
-    sampleProducts: [
-      { name: 'A4 B&W Printing / Photocopy (Per Page)', category: 'Photocopying & Printing (Service)', costPrice: 2, sellingPrice: 10, unit: 'page', stockQuantity: 999999, isService: true },
-      { name: 'KRA Nil Returns Filing Service', category: 'KRA & eCitizen Services (Service)', costPrice: 0, sellingPrice: 200, unit: 'service', stockQuantity: 999999, isService: true },
-      { name: 'Sandisk 32GB USB Flash Drive 3.0', category: 'Flash Drives & Memory Cards', costPrice: 550, sellingPrice: 850, unit: 'piece', stockQuantity: 25 },
-    ],
   },
   {
     id: 'cereals',
@@ -479,11 +370,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Animal Bran & Pollard',
       'Grain Sacks & Packaging',
       'Posho Mill Grinding (Service)',
-    ],
-    sampleProducts: [
-      { name: 'Mwea Pishori Pure Rice (1kg)', category: 'Rice (Basmati, Pishori, Biryani)', costPrice: 180, sellingPrice: 230, unit: 'kg', stockQuantity: 100 },
-      { name: 'Yellow Beans (Nyayo 1kg)', category: 'Dry Beans & Legumes', costPrice: 130, sellingPrice: 170, unit: 'kg', stockQuantity: 80 },
-      { name: 'White Maize Grain (90kg Bag)', category: 'Maize & White Corn', costPrice: 3100, sellingPrice: 3700, unit: 'bag', stockQuantity: 25 },
     ],
   },
   {
@@ -502,11 +388,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Putty & Thinners',
       'Cutting & Glazing (Service)',
     ],
-    sampleProducts: [
-      { name: 'Silk Vinyl Washable Paint 20L Brilliant White', category: 'Emulsion & Silk Wall Paints', costPrice: 4200, sellingPrice: 5200, unit: 'bucket', stockQuantity: 15 },
-      { name: 'Clear Float Window Glass 4mm (Sq Foot)', category: 'Window Glass & Tinted Panes', costPrice: 85, sellingPrice: 140, unit: 'sqft', stockQuantity: 200 },
-      { name: 'Standard 9-inch Paint Roller & Tray Set', category: 'Paint Brushes & Rollers', costPrice: 280, sellingPrice: 450, unit: 'set', stockQuantity: 30 },
-    ],
   },
   {
     id: 'footwear',
@@ -523,11 +404,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Leather Belts & Wallets',
       'Shoe Polishes & Brushes',
       'Shoe Repair & Stitching (Service)',
-    ],
-    sampleProducts: [
-      { name: 'Bata Toughies Leather School Shoes', category: 'School Shoes & Boots', costPrice: 1600, sellingPrice: 2200, unit: 'pair', stockQuantity: 35 },
-      { name: 'Men\'s Genuine Leather Oxford Shoes', category: 'Men\'s Formal Shoes', costPrice: 2400, sellingPrice: 3600, unit: 'pair', stockQuantity: 18 },
-      { name: 'Kiwi Black Shoe Polish 100ml', category: 'Shoe Polishes & Brushes', costPrice: 120, sellingPrice: 180, unit: 'tin', stockQuantity: 50 },
     ],
   },
   {
@@ -546,11 +422,6 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Branded Shaker Bottles',
       'Aerobics & Zumba Classes (Service)',
     ],
-    sampleProducts: [
-      { name: 'Daily Gym Access Pass', category: 'Daily Workout Pass (Service)', costPrice: 0, sellingPrice: 300, unit: 'service', stockQuantity: 999999, isService: true },
-      { name: 'Monthly Unlimited Membership', category: 'Monthly Gym Membership (Service)', costPrice: 0, sellingPrice: 3500, unit: 'service', stockQuantity: 999999, isService: true },
-      { name: 'Gold Standard Whey Protein 2lbs', category: 'Protein Powders & Shakes', costPrice: 4200, sellingPrice: 5800, unit: 'tub', stockQuantity: 10 },
-    ],
   },
   {
     id: 'laundry',
@@ -568,11 +439,14 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
       'Laundry Bags & Hangers',
       'Pick-up & Delivery (Service)',
     ],
-    sampleProducts: [
-      { name: 'Heavy Duvet Washing & Sanitize', category: 'Duvet & Blanket Washing (Service)', costPrice: 0, sellingPrice: 800, unit: 'service', stockQuantity: 999999, isService: true },
-      { name: 'Two-Piece Suit Dry Cleaning & Steam Press', category: 'Dry Cleaning Suits & Gowns (Service)', costPrice: 0, sellingPrice: 750, unit: 'service', stockQuantity: 999999, isService: true },
-      { name: 'Standard Laundry Wash & Fold (Per Kg)', category: 'Wash & Fold (Service)', costPrice: 0, sellingPrice: 150, unit: 'kg', stockQuantity: 999999, isService: true },
-    ],
+  },
+  {
+    id: 'general',
+    name: 'General Retail / Other',
+    shortLabel: 'General',
+    description: 'Any other kind of shop or service business',
+    defaultUnit: 'pieces',
+    categories: ['General', 'Services', 'Other'],
   },
 ];
 
@@ -581,7 +455,7 @@ export const INDUSTRY_TYPES: IndustryDefinition[] = [
  */
 export function getIndustryDefinition(industryOrCategoryString?: string): IndustryDefinition {
   if (!industryOrCategoryString) {
-    return INDUSTRY_TYPES[0]; // Hardware default
+    return INDUSTRY_TYPES.find((i) => i.id === 'general')!;
   }
 
   const raw = industryOrCategoryString.toLowerCase().trim();
@@ -673,7 +547,7 @@ export function getIndustryDefinition(industryOrCategoryString?: string): Indust
   }
 
   // Fallback
-  return INDUSTRY_TYPES[0];
+  return INDUSTRY_TYPES.find((i) => i.id === 'general')!;
 }
 
 export function getCategoriesByIndustry(industryOrCategoryString?: string): string[] {

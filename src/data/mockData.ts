@@ -32,21 +32,23 @@ import {
   OutskirtsTelemetry,
   DeveloperMaintenanceAction,
 } from '../types';
+import { defaultSaaSPlans, defaultPlatformSettings } from './saasData';
 
+// Blank until the owner completes setup. No demo store details.
 export const initialStoreProfile: StoreProfile = {
-  name: 'DMi Business Store',
-  industry: 'hardware',
-  tillNumber: '5421008',
-  paybillNumber: '400200',
-  accountNumber: 'NH092',
-  phone: '+254 712 345 678',
-  location: 'Nairobi, Kenya',
+  name: '',
+  industry: 'general',
+  tillNumber: '',
+  paybillNumber: '',
+  accountNumber: '',
+  phone: '',
+  location: '',
   currency: 'KSh',
-  taxPin: 'P051982736Z',
-  cashierName: 'David Migichi (Owner)',
-  receiptTitle: 'OFFICIAL CASH SALE RECEIPT',
-  receiptFooterMessage: 'Asante sana kwa Biashara! Karibu Tena.',
-  receiptReturnPolicy: 'Goods once sold in good order are not returnable without this original receipt.',
+  taxPin: '',
+  cashierName: '',
+  receiptTitle: 'CASH SALE RECEIPT',
+  receiptFooterMessage: 'Thank you for your business!',
+  receiptReturnPolicy: 'Goods once sold are not returnable without original receipt.',
   receiptPaperFormat: 'thermal80',
 };
 
@@ -63,21 +65,21 @@ export const initialSales: Sale[] = [];
 
 export const initialSupplierQuotes: SupplierQuote[] = [];
 
-// Multi-Branch Initial Setup (Single initial Main Branch)
+// Every business needs one HQ branch to hang data on; its details are filled in during setup.
 export const initialBranches: Branch[] = [
   {
     id: 'branch-1',
     name: 'Main Branch',
     code: 'MAIN',
-    location: 'Nairobi Main',
-    phone: '+254 712 345 678',
-    tillNumber: '5421008',
-    paybillNumber: '400200',
-    accountNumber: 'MAIN-01',
-    cashierName: 'David Migichi (Owner)',
+    location: '',
+    phone: '',
+    tillNumber: '',
+    paybillNumber: '',
+    accountNumber: '',
+    cashierName: '',
     isWarehouse: false,
     isActive: true,
-    notes: 'Main Store & Operations Counter',
+    notes: '',
   },
 ];
 
@@ -87,15 +89,16 @@ export const initialDispatchOrders: DispatchOrder[] = [];
 
 export const initialMpesaTransactions: MpesaTransaction[] = [];
 
+// Daraja credentials are entered by the owner in Store Settings (and should be stored server-side).
 export const initialDarajaConfig: DarajaConfig = {
-  consumerKey: 'dmi_daraja_prod_key_77a9b',
-  consumerSecret: 'dmi_sec_99182aa45',
-  passkey: 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919',
-  shortcode: '5421008',
+  consumerKey: '',
+  consumerSecret: '',
+  passkey: '',
+  shortcode: '',
   channelType: 'buy_goods',
-  callbackUrl: 'https://ais-dev-tdaarb5ss6tltodxb45vs2-430844239449.europe-west2.run.app/api/mpesa/callback',
+  callbackUrl: '',
   environment: 'live',
-  autoReconcile: true,
+  autoReconcile: false,
 };
 
 export const initialWhatsAppTemplates: WhatsAppTemplate[] = [
@@ -190,49 +193,9 @@ _DMi Business Intelligence • Generated automatically_`,
   },
 ];
 
-// Master Owner Account — David Migichi (migichidave09@gmail.com, PIN: 8124)
-export const initialEmployees: Employee[] = [
-  {
-    id: 'emp-owner',
-    name: 'David Migichi',
-    username: 'david.migichi',
-    password: 'Mozambique09',
-    role: 'owner',
-    branchId: 'all',
-    branchName: 'All Branches (Head Office)',
-    pin: '8124',
-    phone: '+254 712 345 678',
-    email: 'migichidave09@gmail.com',
-    twoFactorEnabled: false,
-    biometricRegistered: false,
-    status: 'active',
-    avatarInitials: 'DM',
-    permissions: {
-      canCreateSale: true,
-      canIssueReceipt: true,
-      canProcessReturns: true,
-      canGiveDiscount: true,
-      canCancelSale: true,
-      canViewStock: true,
-      canAdjustStock: true,
-      canDeleteProduct: true,
-      canTransferStock: true,
-      canViewCustomers: true,
-      canRecordPayment: true,
-      canDeleteCustomer: true,
-      canViewDailySales: true,
-      canViewProfit: true,
-      canViewExpenses: true,
-      canViewFinancialReports: true,
-      canManageEmployees: true,
-      canApproveTransfers: true,
-      canViewAuditLog: true,
-      canConfigureSettings: true,
-      canOrderDispatch: true,
-      canAuthorizeDispatch: true,
-    },
-  },
-];
+// No seeded accounts. The first owner account is created through the onboarding / sign-up flow
+// (Supabase Auth), never from source code.
+export const initialEmployees: Employee[] = [];
 
 export const initialSecurityLimits: TransactionSecurityLimits = {
   maxDiscountWithoutApprovalPercent: 5,
@@ -250,28 +213,13 @@ export const initialAnomalies: AnomalyAlert[] = [];
 
 export const initialGuidedSetup: GuidedSetupConfig = {
   isCompleted: false,
-  businessType: 'Hardware & Building Supplies',
+  businessType: '',
   branchesCount: '1 Branch',
   employeesCount: '1-5 Employees',
-  primaryCategories: ['General'],
+  primaryCategories: [],
 };
 
-export const emptyStoreProfile: StoreProfile = {
-  name: '',
-  industry: 'general',
-  tillNumber: '',
-  paybillNumber: '',
-  accountNumber: '',
-  phone: '',
-  location: '',
-  currency: 'KSh',
-  taxPin: '',
-  cashierName: '',
-  receiptTitle: 'CASH SALE RECEIPT',
-  receiptFooterMessage: 'Thank you for your business!',
-  receiptReturnPolicy: 'Goods once sold are not returnable without original receipt.',
-  receiptPaperFormat: 'thermal80',
-};
+export const emptyStoreProfile: StoreProfile = { ...initialStoreProfile };
 
 export const getRoleDefaultPermissions = (role: UserRole | string = 'cashier'): EmployeePermissions => {
   if (role === 'owner') {
@@ -564,39 +512,27 @@ export const emptyBusinessIdentity: BusinessIdentity = {
   currency: 'KSh',
 };
 
-export const initialBusinessIdentity: BusinessIdentity = {
-  businessId: 'BUS-8F42K91',
-  name: 'DMi Business Store',
-  ownerName: 'David Migichi (Owner)',
-  ownerEmail: 'migichidave09@gmail.com',
-  ownerPhone: '+254 712 345 678',
-  hqBranchId: 'branch-1',
-  registeredAt: new Date().toISOString(),
-  taxPin: 'P051982736Z',
-  currency: 'KSh',
-};
+// Filled in during onboarding / sign-up. Never pre-seed a real business here.
+export const initialBusinessIdentity: BusinessIdentity = { ...emptyBusinessIdentity };
+
+// New tenants start on the Starter plan with a trial window taken from platform settings.
+// No license key or payment is pre-filled: those come from a redeemed voucher or a real M-Pesa renewal.
+const starterPlan = defaultSaaSPlans.find((p) => p.code === 'starter')!;
 
 export const initialSubscription: BusinessSubscription = {
-  tier: 'Starter',
+  tier: starterPlan.tier,
   status: 'active',
-  renewalDate: new Date(Date.now() + 365 * 86400000).toISOString(),
-  maxBranches: 1,
-  maxDevices: 2,
-  maxUsers: 3,
-  licenseKey: 'DMI-LIC-ST-8F42-9901-K91E',
-  authorizedBy: 'David Migichi (Platform Director)',
-  monthlyFee: 1000,
-  lastPaymentDate: new Date().toISOString(),
-  gracePeriodDays: 5,
-  planCode: 'starter',
-  features: [
-    'Single shop operation (1 Store HQ)',
-    '2 connected POS counters',
-    'Real-time offline-first sales engine',
-    'M-Pesa STK push & till prompt',
-    'Daily sales book & basic reports',
-    'Standard cloud event backup',
-  ],
+  renewalDate: new Date(Date.now() + defaultPlatformSettings.trialDurationDays * 86400000).toISOString(),
+  maxBranches: starterPlan.maxBranches,
+  maxDevices: starterPlan.maxDevices,
+  maxUsers: starterPlan.maxUsers,
+  licenseKey: '',
+  authorizedBy: '',
+  monthlyFee: starterPlan.monthlyPriceKes,
+  lastPaymentDate: '',
+  gracePeriodDays: defaultPlatformSettings.gracePeriodDays,
+  planCode: starterPlan.code,
+  features: starterPlan.features,
 };
 
 export const initialConnectedDevices: ConnectedDevice[] = [];
@@ -606,21 +542,21 @@ export const initialSyncEvents: SyncEvent[] = [];
 export const initialSoftDeletedRecords: SoftDeletedRecord[] = [];
 export const initialCloudBackups: CloudBackupSnapshot[] = [];
 
+// Telemetry starts at zero; real values are collected live by the device agent.
 export const initialOutskirtsTelemetry: OutskirtsTelemetry = {
-  eventLoopLagMs: 14,
-  memoryUsageMb: 42,
+  eventLoopLagMs: 0,
+  memoryUsageMb: 0,
   memoryStatus: 'optimal',
-  storageUsageMb: 12.4,
-  storageFragmentationPct: 2,
+  storageUsageMb: 0,
+  storageFragmentationPct: 0,
   pendingSyncQueue: 0,
-  networkLatencyMs: 28,
+  networkLatencyMs: 0,
   crashesCount: 0,
   lastSeenTimestamp: new Date().toISOString(),
-  systemUptimeHours: 184.2,
-  fpsStatus: 60,
+  systemUptimeHours: 0,
+  fpsStatus: 0,
 };
 
 export const initialClientSoldSystems: ClientSoldSystem[] = [];
-export const demoClientSoldSystems: ClientSoldSystem[] = [];
 export const initialDeveloperVouchers: DeveloperLicenseVoucher[] = [];
 export const initialDeveloperMaintenanceLogs: DeveloperMaintenanceAction[] = [];

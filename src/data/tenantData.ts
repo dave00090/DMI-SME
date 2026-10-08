@@ -12,11 +12,8 @@ import {
 import {
   initialStoreProfile,
   initialBranches,
-  initialProducts,
-  initialCustomers,
-  initialSales,
-  initialConnectedDevices,
-  initialEmployees,
+  initialSubscription,
+  emptyBusinessIdentity,
 } from './mockData';
 
 export interface TenantBundle {
@@ -31,46 +28,54 @@ export interface TenantBundle {
   employees: Employee[];
 }
 
-export const tenantRegistry: Record<string, TenantBundle> = {
-  // Primary business
-  'BUS-8F42K91': {
+/**
+ * Real tenants live in Supabase (one row per business, isolated with Row Level Security).
+ * This registry is only an in-memory cache of tenants loaded for the current session,
+ * so it starts empty: there is no built-in demo business.
+ */
+export const tenantRegistry: Record<string, TenantBundle> = {};
+
+/** Generates a business ID in the same shape as before, e.g. BUS-8F42K91. */
+export function generateBusinessId(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes = new Uint8Array(7);
+  crypto.getRandomValues(bytes);
+  let id = '';
+  for (const b of bytes) id += alphabet[b % alphabet.length];
+  return `BUS-${id}`;
+}
+
+/**
+ * Builds a brand-new, empty tenant for a business that has just signed up.
+ * Nothing is pre-filled except what the owner typed in the sign-up form.
+ */
+export function createEmptyTenantBundle(owner: {
+  businessName: string;
+  ownerName: string;
+  ownerEmail: string;
+  ownerPhone: string;
+}): TenantBundle {
+  const businessId = generateBusinessId();
+  const hqBranch = { ...initialBranches[0] };
+
+  return {
     businessIdentity: {
-      businessId: 'BUS-8F42K91',
-      name: 'DMi Business Store',
-      ownerName: 'David Migichi',
-      ownerEmail: 'migichidave09@gmail.com',
-      ownerPhone: '+254 712 345 678',
-      hqBranchId: 'branch-1',
-      registeredAt: '2025-01-15T08:00:00.000Z',
-      taxPin: 'P051982736Z',
-      currency: 'KSh',
+      ...emptyBusinessIdentity,
+      businessId,
+      name: owner.businessName,
+      ownerName: owner.ownerName,
+      ownerEmail: owner.ownerEmail,
+      ownerPhone: owner.ownerPhone,
+      hqBranchId: hqBranch.id,
+      registeredAt: new Date().toISOString(),
     },
-    storeProfile: initialStoreProfile,
-    subscription: {
-      tier: 'Business',
-      status: 'active',
-      renewalDate: new Date(Date.now() + 30 * 86400000).toISOString(),
-      maxBranches: 5,
-      maxDevices: 15,
-      maxUsers: 25,
-      licenseKey: 'DMI-LIC-BUS-8F42-9981-K91P',
-      authorizedBy: 'David Migichi (Platform Director)',
-      monthlyFee: 2000,
-      lastPaymentDate: new Date().toISOString(),
-      gracePeriodDays: 7,
-      planCode: 'business',
-      features: [
-        'Single and Multi-branch operation',
-        'Carrier M-Pesa automated reconciliation (Till 5331774)',
-        'Multi-device real-time sync with conflict resolution',
-        'Hardware biometric terminal authentication',
-      ],
-    },
-    branches: initialBranches,
-    products: initialProducts,
-    customers: initialCustomers,
-    sales: initialSales,
-    connectedDevices: initialConnectedDevices,
-    employees: initialEmployees,
-  },
-};
+    storeProfile: { ...initialStoreProfile, name: owner.businessName, phone: owner.ownerPhone },
+    subscription: { ...initialSubscription },
+    branches: [hqBranch],
+    products: [],
+    customers: [],
+    sales: [],
+    connectedDevices: [],
+    employees: [],
+  };
+}
